@@ -1,4 +1,6 @@
 const EventEmitter = require('events')
+const Invalidator = require('./Invalidator')
+const PropertyWatcher = require('./PropertyWatcher')
 
 class Property {
   constructor (options = {}) {
@@ -10,6 +12,24 @@ class Property {
     this.events = new this.opt.EventEmitterClass()
     this.calculated = false
     this.initiated = false
+    this.value = this.ingest(this.opt.default)
+    this.loadChangeOption()
+  }
+
+  loadChangeOption () {
+    if (typeof this.opt.change === 'function') {
+      return new PropertyWatcher({
+        property: this,
+        callback: this.opt.change,
+        scope: this.opt.scope,
+        autoBind: true
+      })
+    } else if (this.opt.change != null && typeof this.opt.change.copyWith === 'function') {
+      return this.opt.change.copyWith({
+        property: this,
+        autoBind: true
+      })
+    }
   }
 
   copyWith (options) {
@@ -17,15 +37,54 @@ class Property {
   }
 
   get () {
-    this.calculated = true
-    if (typeof this.opt.get === 'function') {
-      return this.callOptionFunct('get')
-    }
-    if (!this.initiated) {
-      this.initiated = true
-      this.events.emit('updated')
+    if (typeof this.opt.calcul === 'function') {
+      if (this.invalidator) {
+        this.invalidator.validateUnknowns()
+      }
+      if (!this.calculated) {
+        const old = this.value
+        const initiated = this.initiated
+        this.calcul()
+        if (!initiated) {
+          this.events.emit('updated', old)
+        } else if (this.checkChanges(this.value, old)) {
+          this.changed(old)
+        }
+      }
+    } else {
+      this.calculated = true
+      if (typeof this.opt.get === 'function') {
+        return this.callOptionFunct('get')
+      }
+      if (!this.initiated) {
+        this.initiated = true
+        this.events.emit('updated')
+      }
     }
     return this.output()
+  }
+
+  calcul () {
+    if (this.opt.calcul.length === 0) {
+      this.value = this.callOptionFunct('calcul')
+      this.manual = false
+    } else {
+      if (!this.invalidator) {
+        this.invalidator = new Invalidator(this, this.obj)
+      }
+      this.invalidator.recycle((invalidator, done) => {
+        this.value = this.callOptionFunct('calcul', invalidator)
+        this.manual = false
+        done()
+        if (invalidator.isEmpty()) {
+          this.invalidator = null
+        } else {
+          invalidator.bind()
+        }
+      })
+    }
+    this.revalidated()
+    return this.value
   }
 
   set (val) {
@@ -56,6 +115,9 @@ class Property {
     if (typeof this.opt.destroy === 'function') {
       this.callOptionFunct('destroy', this.value)
     }
+    if (this.invalidator != null) {
+      return this.invalidator.unbind()
+    }
     this.value = null
   }
 
@@ -63,18 +125,12 @@ class Property {
     if (typeof funct === 'string') {
       funct = this.opt[funct]
     }
-    if (typeof funct.overrided === 'function') {
-      args.push((...args) => {
-        return this.callOptionFunct(funct.overrided, ...args)
-      })
-    }
     return funct.apply(this.opt.scope || this, args)
   }
 
   revalidated () {
     this.calculated = true
     this.initiated = true
-    this.value = this.ingest(this.opt.default)
     return this
   }
 
@@ -102,6 +158,16 @@ class Property {
   invalidate () {
     if (this.calculated) {
       this.calculated = false
+      this.invalidateNotice()
+      if (!this.calculated && this.invalidator != null) {
+        this.invalidator.unbind()
+      }
+    }
+    return this
+  }
+
+  unknown () {
+    if (this.calculated || this.active === false) {
       this.invalidateNotice()
     }
     return this
