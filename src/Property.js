@@ -1,6 +1,9 @@
 const EventEmitter = require('events')
-const Invalidator = require('./Invalidator')
 const PropertyWatcher = require('./PropertyWatcher')
+const SimpleGetter = require('./getters/SimpleGetter')
+const CalculatedGetter = require('./getters/CalculatedGetter')
+const InvalidatedGetter = require('./getters/InvalidatedGetter')
+const ManualGetter = require('./getters/ManualGetter')
 
 class Property {
   constructor (options = {}) {
@@ -10,10 +13,23 @@ class Property {
 
   init () {
     this.events = new this.opt.EventEmitterClass()
-    this.calculated = false
-    this.initiated = false
     this.value = this.ingest(this.opt.default)
+    this.makeGetter()
     this.loadChangeOption()
+  }
+
+  makeGetter () {
+    if (typeof this.opt.get === 'function') {
+      this.getter = new ManualGetter(this)
+    } else if (typeof this.opt.calcul === 'function') {
+      if (this.opt.calcul.length === 0) {
+        this.getter = new CalculatedGetter(this)
+      } else {
+        this.getter = new InvalidatedGetter(this)
+      }
+    } else {
+      this.getter = new SimpleGetter(this)
+    }
   }
 
   loadChangeOption () {
@@ -37,54 +53,18 @@ class Property {
   }
 
   get () {
-    if (typeof this.opt.calcul === 'function') {
-      if (this.invalidator) {
-        this.invalidator.validateUnknowns()
-      }
-      if (!this.calculated) {
-        const old = this.value
-        const initiated = this.initiated
-        this.calcul()
-        if (!initiated) {
-          this.events.emit('updated', old)
-        } else if (this.checkChanges(this.value, old)) {
-          this.changed(old)
-        }
-      }
-    } else {
-      this.calculated = true
-      if (typeof this.opt.get === 'function') {
-        return this.callOptionFunct('get')
-      }
-      if (!this.initiated) {
-        this.initiated = true
-        this.events.emit('updated')
-      }
-    }
+    this.getter.get()
     return this.output()
   }
 
-  calcul () {
-    if (this.opt.calcul.length === 0) {
-      this.value = this.callOptionFunct('calcul')
-      this.manual = false
-    } else {
-      if (!this.invalidator) {
-        this.invalidator = new Invalidator(this, this.obj)
-      }
-      this.invalidator.recycle((invalidator, done) => {
-        this.value = this.callOptionFunct('calcul', invalidator)
-        this.manual = false
-        done()
-        if (invalidator.isEmpty()) {
-          this.invalidator = null
-        } else {
-          invalidator.bind()
-        }
-      })
-    }
-    this.revalidated()
-    return this.value
+  invalidate () {
+    this.getter.invalidate()
+    return this
+  }
+
+  unknown () {
+    this.getter.unknown()
+    return this
   }
 
   set (val) {
@@ -94,7 +74,7 @@ class Property {
   setAndCheckChanges (val) {
     var old
     val = this.ingest(val)
-    this.revalidated()
+    this.getter.revalidated()
     if (this.checkChanges(val, this.value)) {
       old = this.value
       this.value = val
@@ -115,9 +95,7 @@ class Property {
     if (typeof this.opt.destroy === 'function') {
       this.callOptionFunct('destroy', this.value)
     }
-    if (this.invalidator != null) {
-      return this.invalidator.unbind()
-    }
+    this.getter.destroy()
     this.value = null
   }
 
@@ -126,12 +104,6 @@ class Property {
       funct = this.opt[funct]
     }
     return funct.apply(this.opt.scope || this, args)
-  }
-
-  revalidated () {
-    this.calculated = true
-    this.initiated = true
-    return this
   }
 
   ingest (val) {
@@ -155,27 +127,6 @@ class Property {
     return this
   }
 
-  invalidate () {
-    if (this.calculated) {
-      this.calculated = false
-      this.invalidateNotice()
-      if (!this.calculated && this.invalidator != null) {
-        this.invalidator.unbind()
-      }
-    }
-    return this
-  }
-
-  unknown () {
-    if (this.calculated || this.active === false) {
-      this.invalidateNotice()
-    }
-    return this
-  }
-
-  invalidateNotice () {
-    this.events.emit('invalidated')
-  }
 }
 Property.defaultOptions = {
   EventEmitterClass: EventEmitter
