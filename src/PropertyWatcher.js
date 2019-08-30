@@ -28,8 +28,8 @@ class PropertyWatcher extends Binder {
     return this
   }
 
-  copyWith (opt) {
-    return new this.constructor(Object.assign({}, this.options, opt))
+  copyWith (options) {
+    return new this.constructor(Object.assign({}, this.options, options))
   }
 
   init () {

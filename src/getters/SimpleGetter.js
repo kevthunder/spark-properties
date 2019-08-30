@@ -7,7 +7,7 @@ class SimpleGetter extends BaseGetter {
       this.initiated = true
       this.prop.events.emit('updated')
     }
-    return this.prop.value
+    return this.output()
   }
 }
 

@@ -171,7 +171,7 @@ describe('Invalidator', function () {
     invalidator.bind()
     assert.equal(invalidedCalls, 0)
     assert.equal(res, 3)
-    prop.changed()
+    prop.setter.changed()
     return assert.equal(invalidedCalls, 1)
   })
   it('allow to get an non-dynamic property', function () {

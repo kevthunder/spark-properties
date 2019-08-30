@@ -1,5 +1,4 @@
 const EventEmitter = require('events')
-const PropertyWatcher = require('./PropertyWatcher')
 
 const SimpleGetter = require('./getters/SimpleGetter')
 const CalculatedGetter = require('./getters/CalculatedGetter')
@@ -10,28 +9,30 @@ const CompositeGetter = require('./getters/CompositeGetter')
 const ManualSetter = require('./setters/ManualSetter')
 const SimpleSetter = require('./setters/SimpleSetter')
 const BaseValueSetter = require('./setters/BaseValueSetter')
+const CollectionSetter = require('./setters/CollectionSetter')
 
 class Property {
   constructor (options = {}) {
-    this.opt = Object.assign({}, Property.defaultOptions, options)
+    this.options = Object.assign({}, Property.defaultOptions, options)
     this.init()
   }
 
   init () {
-    this.events = new this.opt.EventEmitterClass()
-    this.value = this.ingest(this.opt.default)
-    this.makeGetter()
+    this.events = new this.options.EventEmitterClass()
     this.makeSetter()
-    this.loadChangeOption()
+    this.makeGetter()
+    this.setter.init()
+    this.getter.init()
+    this.setter.loadInternalWatcher()
   }
 
   makeGetter () {
-    if (typeof this.opt.get === 'function') {
+    if (typeof this.options.get === 'function') {
       this.getter = new ManualGetter(this)
-    } else if (this.opt.composed != null && this.opt.composed !== false) {
+    } else if (this.options.composed != null && this.options.composed !== false) {
       this.getter = new CompositeGetter(this)
-    } else if (typeof this.opt.calcul === 'function') {
-      if (this.opt.calcul.length === 0) {
+    } else if (typeof this.options.calcul === 'function') {
+      if (this.options.calcul.length === 0) {
         this.getter = new CalculatedGetter(this)
       } else {
         this.getter = new InvalidatedGetter(this)
@@ -42,38 +43,23 @@ class Property {
   }
 
   makeSetter () {
-    if (typeof this.opt.set === 'function') {
+    if (typeof this.options.set === 'function') {
       this.setter = new ManualSetter(this)
-    } else if (this.opt.composed != null && this.opt.composed !== false) {
+    } else if (this.options.collection != null && this.options.collection !== false) {
+      this.setter = new CollectionSetter(this)
+    } else if (this.options.composed != null && this.options.composed !== false) {
       this.setter = new BaseValueSetter(this)
     } else {
       this.setter = new SimpleSetter(this)
     }
   }
 
-  loadChangeOption () {
-    if (typeof this.opt.change === 'function') {
-      return new PropertyWatcher({
-        property: this,
-        callback: this.opt.change,
-        scope: this.opt.scope,
-        autoBind: true
-      })
-    } else if (this.opt.change != null && typeof this.opt.change.copyWith === 'function') {
-      return this.opt.change.copyWith({
-        property: this,
-        autoBind: true
-      })
-    }
-  }
-
   copyWith (options) {
-    return new this.constructor(Object.assign({}, this.opt, options))
+    return new this.constructor(Object.assign({}, this.options, options))
   }
 
   get () {
-    this.getter.get()
-    return this.output()
+    return this.getter.get()
   }
 
   invalidate () {
@@ -91,10 +77,10 @@ class Property {
   }
 
   destroy () {
-    if (this.opt.destroy === true && this.value != null && this.value.destroy != null) {
+    if (this.options.destroy === true && this.value != null && this.value.destroy != null) {
       this.value.destroy()
     }
-    if (typeof this.opt.destroy === 'function') {
+    if (typeof this.options.destroy === 'function') {
       this.callOptionFunct('destroy', this.value)
     }
     this.getter.destroy()
@@ -103,30 +89,9 @@ class Property {
 
   callOptionFunct (funct, ...args) {
     if (typeof funct === 'string') {
-      funct = this.opt[funct]
+      funct = this.options[funct]
     }
-    return funct.apply(this.opt.scope || this, args)
-  }
-
-  ingest (val) {
-    if (typeof this.opt.ingest === 'function') {
-      val = this.callOptionFunct('ingest', val)
-    }
-    return val
-  }
-
-  output () {
-    if (typeof this.opt.output === 'function') {
-      return this.callOptionFunct('output', this.value)
-    } else {
-      return this.value
-    }
-  }
-
-  changed (old) {
-    this.events.emit('updated', old)
-    this.events.emit('changed', old)
-    return this
+    return funct.apply(this.options.scope || this, args)
   }
 }
 

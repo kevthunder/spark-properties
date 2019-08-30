@@ -5,15 +5,16 @@ const Invalidator = require('../Invalidator')
 class CompositeGetter extends InvalidatedGetter {
   init () {
     super.init()
-    if (this.prop.opt.default != null) {
-      this.baseValue = this.prop.opt.default
+    if (this.prop.options.default != null) {
+      this.baseValue = this.prop.options.default
     } else {
-      this.baseValue = this.prop.value = null
+      this.prop.setter.setRawValue(null)
+      this.baseValue = null
     }
-    this.members = new CompositeGetter.Members(this.prop.opt.members)
-    if (this.prop.opt.calcul != null) {
+    this.members = new CompositeGetter.Members(this.prop.options.members)
+    if (this.prop.options.calcul != null) {
       this.members.unshift((prev, invalidator) => {
-        return this.prop.opt.calcul.bind(this.prop.opt.scope)(invalidator)
+        return this.prop.options.calcul.bind(this.prop.options.scope)(invalidator)
       })
     }
     this.members.changed = (old) => {
@@ -21,13 +22,13 @@ class CompositeGetter extends InvalidatedGetter {
     }
     this.prop.members = this.members
 
-    if (typeof this.prop.opt.composed === 'function') {
-      this.join = this.prop.opt.composed
-    } else if (typeof this.prop.opt.composed === 'string' && CompositeGetter.joinFunctions[this.prop.opt.composed] != null) {
-      this.join = CompositeGetter.joinFunctions[this.prop.opt.composed]
-    } else if (this.prop.opt.default === false) {
+    if (typeof this.prop.options.composed === 'function') {
+      this.join = this.prop.options.composed
+    } else if (typeof this.prop.options.composed === 'string' && CompositeGetter.joinFunctions[this.prop.options.composed] != null) {
+      this.join = CompositeGetter.joinFunctions[this.prop.options.composed]
+    } else if (this.prop.options.default === false) {
       this.join = CompositeGetter.joinFunctions.or
-    } else if (this.prop.opt.default === true) {
+    } else if (this.prop.options.default === true) {
       this.join = CompositeGetter.joinFunctions.and
     } else {
       this.join = CompositeGetter.joinFunctions.last
@@ -37,14 +38,14 @@ class CompositeGetter extends InvalidatedGetter {
   calcul () {
     if (this.members.length) {
       if (!this.invalidator) {
-        this.invalidator = new Invalidator(this.prop, this.prop.opt.scope)
+        this.invalidator = new Invalidator(this.prop, this.prop.options.scope)
       }
       this.invalidator.recycle((invalidator, done) => {
-        this.prop.value = this.members.reduce((prev, member) => {
+        this.prop.setter.setRawValue(this.members.reduce((prev, member) => {
           var val
           val = typeof member === 'function' ? member(prev, this.invalidator) : member
           return this.join(prev, val)
-        }, this.baseValue)
+        }, this.baseValue))
         done()
         if (invalidator.isEmpty()) {
           this.invalidator = null
@@ -53,7 +54,7 @@ class CompositeGetter extends InvalidatedGetter {
         }
       })
     } else {
-      this.prop.value = this.baseValue
+      this.prop.setter.setRawValue(this.baseValue)
     }
     this.revalidated()
     return this.prop.value
@@ -86,12 +87,14 @@ CompositeGetter.Members = class Members extends Collection {
         name: null,
         obj: prop
       }
-      return this.push(fn)
+      this.push(fn)
     }
+    return this
   }
 
   removeProperty (prop) {
     this.removeRef(null, prop)
+    return this
   }
 
   addValueRef (val, name, obj) {
@@ -105,15 +108,16 @@ CompositeGetter.Members = class Members extends Collection {
         obj: obj,
         val: val
       }
-      return this.push(fn)
+      this.push(fn)
     }
+    return this
   }
 
   setValueRef (val, name, obj) {
     var fn, i, ref
     i = this.findRefIndex(name, obj)
     if (i === -1) {
-      return this.addValueRef(val, name, obj)
+      this.addValueRef(val, name, obj)
     } else if (this.get(i).ref.val !== val) {
       ref = {
         name: name,
@@ -124,8 +128,9 @@ CompositeGetter.Members = class Members extends Collection {
         return val
       }
       fn.ref = ref
-      return this.set(i, fn)
+      this.set(i, fn)
     }
+    return this
   }
 
   getValueRef (name, obj) {
@@ -138,8 +143,9 @@ CompositeGetter.Members = class Members extends Collection {
         name: name,
         obj: obj
       }
-      return this.push(fn)
+      this.push(fn)
     }
+    return this
   }
 
   findByRef (name, obj) {
@@ -158,8 +164,9 @@ CompositeGetter.Members = class Members extends Collection {
     if (index !== -1) {
       old = this.toArray()
       this._array.splice(index, 1)
-      return this.changed(old)
+      this.changed(old)
     }
+    return this
   }
 }
 

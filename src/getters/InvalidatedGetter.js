@@ -14,7 +14,7 @@ class InvalidatedGetter extends CalculatedGetter {
       this.invalidator = new Invalidator(this.prop, this.prop.obj)
     }
     this.invalidator.recycle((invalidator, done) => {
-      this.prop.value = this.prop.callOptionFunct('calcul', invalidator)
+      this.prop.setter.setRawValue(this.prop.callOptionFunct('calcul', invalidator))
       this.prop.manual = false
       done()
       if (invalidator.isEmpty()) {
@@ -24,7 +24,7 @@ class InvalidatedGetter extends CalculatedGetter {
       }
     })
     this.revalidated()
-    return this.prop.value
+    return this.output()
   }
 
   invalidate () {

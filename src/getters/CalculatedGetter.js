@@ -10,14 +10,14 @@ class CalculatedGetter extends BaseGetter {
       if (!initiated) {
         this.prop.events.emit('updated', old)
       } else if (this.prop.setter.checkChanges(this.prop.value, old)) {
-        this.prop.changed(old)
+        this.prop.setter.changed(old)
       }
     }
-    return this.prop.value
+    return this.output()
   }
 
   calcul () {
-    this.prop.value = this.prop.callOptionFunct('calcul')
+    this.prop.setter.setRawValue(this.prop.callOptionFunct('calcul'))
     this.prop.manual = false
     this.revalidated()
     return this.prop.value

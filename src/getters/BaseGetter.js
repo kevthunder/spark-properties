@@ -2,7 +2,6 @@
 class BaseGetter {
   constructor (prop) {
     this.prop = prop
-    this.init()
   }
 
   init () {
@@ -12,6 +11,14 @@ class BaseGetter {
 
   get () {
     throw new Error('Not implemented')
+  }
+
+  output () {
+    if (typeof this.prop.options.output === 'function') {
+      return this.prop.callOptionFunct('output', this.prop.value)
+    } else {
+      return this.prop.value
+    }
   }
 
   revalidated () {
