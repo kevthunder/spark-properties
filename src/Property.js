@@ -1,9 +1,15 @@
 const EventEmitter = require('events')
 const PropertyWatcher = require('./PropertyWatcher')
+
 const SimpleGetter = require('./getters/SimpleGetter')
 const CalculatedGetter = require('./getters/CalculatedGetter')
 const InvalidatedGetter = require('./getters/InvalidatedGetter')
 const ManualGetter = require('./getters/ManualGetter')
+const CompositeGetter = require('./getters/CompositeGetter')
+
+const ManualSetter = require('./setters/ManualSetter')
+const SimpleSetter = require('./setters/SimpleSetter')
+const BaseValueSetter = require('./setters/BaseValueSetter')
 
 class Property {
   constructor (options = {}) {
@@ -15,12 +21,15 @@ class Property {
     this.events = new this.opt.EventEmitterClass()
     this.value = this.ingest(this.opt.default)
     this.makeGetter()
+    this.makeSetter()
     this.loadChangeOption()
   }
 
   makeGetter () {
     if (typeof this.opt.get === 'function') {
       this.getter = new ManualGetter(this)
+    } else if (this.opt.composed != null && this.opt.composed !== false) {
+      this.getter = new CompositeGetter(this)
     } else if (typeof this.opt.calcul === 'function') {
       if (this.opt.calcul.length === 0) {
         this.getter = new CalculatedGetter(this)
@@ -29,6 +38,16 @@ class Property {
       }
     } else {
       this.getter = new SimpleGetter(this)
+    }
+  }
+
+  makeSetter () {
+    if (typeof this.opt.set === 'function') {
+      this.setter = new ManualSetter(this)
+    } else if (this.opt.composed != null && this.opt.composed !== false) {
+      this.setter = new BaseValueSetter(this)
+    } else {
+      this.setter = new SimpleSetter(this)
     }
   }
 
@@ -68,24 +87,7 @@ class Property {
   }
 
   set (val) {
-    return this.setAndCheckChanges(val)
-  }
-
-  setAndCheckChanges (val) {
-    var old
-    val = this.ingest(val)
-    this.getter.revalidated()
-    if (this.checkChanges(val, this.value)) {
-      old = this.value
-      this.value = val
-      this.manual = true
-      this.changed(old)
-    }
-    return this
-  }
-
-  checkChanges (val, old) {
-    return val !== old
+    return this.setter.set(val)
   }
 
   destroy () {
@@ -126,8 +128,8 @@ class Property {
     this.events.emit('changed', old)
     return this
   }
-
 }
+
 Property.defaultOptions = {
   EventEmitterClass: EventEmitter
 }

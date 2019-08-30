@@ -9,7 +9,7 @@ class CalculatedGetter extends BaseGetter {
       this.calcul()
       if (!initiated) {
         this.prop.events.emit('updated', old)
-      } else if (this.prop.checkChanges(this.prop.value, old)) {
+      } else if (this.prop.setter.checkChanges(this.prop.value, old)) {
         this.prop.changed(old)
       }
     }
