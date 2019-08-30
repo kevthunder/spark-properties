@@ -1,4 +1,4 @@
-const EventEmitter = require('events')
+const EventEmitter = require('events').EventEmitter
 
 const SimpleGetter = require('./getters/SimpleGetter')
 const CalculatedGetter = require('./getters/CalculatedGetter')
@@ -11,13 +11,22 @@ const SimpleSetter = require('./setters/SimpleSetter')
 const BaseValueSetter = require('./setters/BaseValueSetter')
 const CollectionSetter = require('./setters/CollectionSetter')
 
+/**
+ * @template T
+ */
 class Property {
+  /**
+   * @param {*} options
+   */
   constructor (options = {}) {
     this.options = Object.assign({}, Property.defaultOptions, options)
     this.init()
   }
 
   init () {
+    /**
+     * @type {EventEmitter}
+     */
     this.events = new this.options.EventEmitterClass()
     this.makeSetter()
     this.makeGetter()
@@ -54,10 +63,17 @@ class Property {
     }
   }
 
+  /**
+   * @param {*} options
+   * @returns {Property<T>}
+   */
   copyWith (options) {
     return new this.constructor(Object.assign({}, this.options, options))
   }
 
+  /**
+   * @returns {T}
+   */
   get () {
     return this.getter.get()
   }

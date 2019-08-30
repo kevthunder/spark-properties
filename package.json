@@ -16,6 +16,10 @@
   ],
   "author": "Kevin G",
   "license": "ISC",
+  "dependencies": {
+    "events": "^3.0.0",
+    "spark-collection": "0.0.2"
+  },
   "devDependencies": {
     "chai": "^4.2.0",
     "eslint": "^6.2.2",
@@ -26,9 +30,5 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "mocha": "^6.2.0"
-  },
-  "dependencies": {
-    "events": "^3.0.0",
-    "spark-collection": "0.0.1"
   }
 }
