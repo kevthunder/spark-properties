@@ -92,6 +92,22 @@ class Property {
     return this.setter.set(val)
   }
 
+  createScopeGetterSetters () {
+    if (this.options.scope) {
+      const prop = this
+      let opt = {}
+      opt[this.options.name + 'Property'] = {
+        get: function () {
+          return prop
+        }
+      }
+      opt = this.getter.getScopeGetterSetters(opt)
+      opt = this.setter.getScopeGetterSetters(opt)
+      Object.defineProperties(this.options.scope, opt)
+    }
+    return this
+  }
+
   destroy () {
     if (this.options.destroy === true && this.value != null && this.value.destroy != null) {
       this.value.destroy()

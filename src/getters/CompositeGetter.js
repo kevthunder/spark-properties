@@ -59,6 +59,21 @@ class CompositeGetter extends InvalidatedGetter {
     this.revalidated()
     return this.prop.value
   }
+
+  /**
+   * @param {PropertyDescriptorMap} opt
+   * @return {PropertyDescriptorMap}
+   */
+  getScopeGetterSetters (opt) {
+    opt = super.getScopeGetterSetters(opt)
+    const members = this.members
+    opt[this.prop.options.name + 'Members'] = {
+      get: function () {
+        return members
+      }
+    }
+    return opt
+  }
 }
 
 CompositeGetter.joinFunctions = {

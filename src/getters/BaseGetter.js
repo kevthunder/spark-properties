@@ -46,6 +46,21 @@ class BaseGetter {
     this.prop.events.emit('invalidated')
   }
 
+  /**
+   * @param {PropertyDescriptorMap} opt
+   * @return {PropertyDescriptorMap}
+   */
+  getScopeGetterSetters (opt) {
+    const prop = this.prop
+    opt[this.prop.options.name] = opt[this.prop.options.name] || {}
+    opt[this.prop.options.name].get = function () {
+      return prop.get()
+    }
+    opt[this.prop.options.name].enumerable = true
+    opt[this.prop.options.name].configurable = true
+    return opt
+  }
+
   destroy () {
   }
 }

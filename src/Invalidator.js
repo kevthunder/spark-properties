@@ -116,19 +116,26 @@ class Invalidator extends Binder {
     return val
   }
 
-  prop (prop, target = this.scope) {
-    var propInstance
-    if (typeof prop === 'string') {
-      if ((target.getPropertyInstance != null) && (propInstance = target.getPropertyInstance(prop))) {
-        prop = propInstance
-      } else {
-        return target[prop]
-      }
-    } else if (!this.checkPropInstance(prop)) {
-      throw new Error('Property must be a PropertyInstance or a string')
+  /**
+   * @template T
+   * @param {Property<T>} prop
+   * @return {T}
+   */
+  prop (prop) {
+    if (prop != null) {
+      this.addEventBind('invalidated', prop.events, this.getUnknownCallback(prop))
+      return this.value(prop.get(), 'updated', prop.events)
     }
-    this.addEventBind('invalidated', prop.events, this.getUnknownCallback(prop))
-    return this.value(prop.get(), 'updated', prop.events)
+  }
+
+  propByName (prop, target = this.scope) {
+    if (target.propertiesManager != null) {
+      return this.prop(target.propertiesManager.getProperty(prop))
+    } else if (target[prop + 'Property'] != null) {
+      return this.prop(target[prop + 'Property'])
+    } else {
+      return target[prop]
+    }
   }
 
   propPath (path, target = this.scope) {
@@ -137,23 +144,9 @@ class Invalidator extends Binder {
     val = target
     while ((val != null) && path.length > 0) {
       prop = path.shift()
-      val = this.prop(prop, val)
+      val = this.propByName(prop, val)
     }
     return val
-  }
-
-  propInitiated (prop, target = this.scope) {
-    var initiated
-    if (typeof prop === 'string' && (target.getPropertyInstance != null)) {
-      prop = target.getPropertyInstance(prop)
-    } else if (!this.checkPropInstance(prop)) {
-      throw new Error('Property must be a PropertyInstance or a string')
-    }
-    initiated = prop.initiated
-    if (!initiated) {
-      this.event('updated', prop)
-    }
-    return initiated
   }
 
   funct (funct) {

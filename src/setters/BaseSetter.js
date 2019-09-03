@@ -56,6 +56,19 @@ class BaseSetter {
     this.prop.events.emit('changed', old)
     return this
   }
+
+  /**
+   * @param {PropertyDescriptorMap} opt
+   * @return {PropertyDescriptorMap}
+   */
+  getScopeGetterSetters (opt) {
+    const prop = this.prop
+    opt[this.prop.options.name] = opt[this.prop.options.name] || {}
+    opt[this.prop.options.name].set = function (val) {
+      return prop.set(val)
+    }
+    return opt
+  }
 }
 
 module.exports = BaseSetter
