@@ -180,47 +180,51 @@ describe('Invalidator', function () {
       test: 1
     }
     invalidator = new Invalidator(null, obj)
-    res = invalidator.prop('test')
+    res = invalidator.propByName('test')
     return assert.equal(res, 1)
   })
   it('throws an error when prop name is not a valid property', function () {
-    var emitter, invalidated, invalidator
-    invalidated = {
+    const invalidated = {
       test: 1
     }
-    emitter = {
+    const emitter = {
       test: 2
     }
-    invalidator = new Invalidator('test', invalidated)
+    const invalidator = new Invalidator('test', invalidated)
     return assert.throws(function () {
       return invalidator.prop(emitter, 'test')
-    }, 'Property must be a PropertyInstance or a string')
+    }, 'prop.get is not a function')
   })
-  it.skip('can create a bind with a property with implicit target', function () {
+  it('can create a bind with a property with implicit target', function () {
     var invalidator, invalidedCalls, obj, res
-    obj = {}
-    new Property({
-      default: 3
-    }).bind(obj)
+    obj = {
+      testProperty: new Property({
+        default: 3
+      })
+    }
     invalidedCalls = 0
     invalidator = new Invalidator(function () {
       return invalidedCalls++
     }, obj)
     assert.equal(invalidator.invalidationEvents.length, 0)
-    res = invalidator.prop('test')
+    res = invalidator.propByName('test')
     invalidator.bind()
     assert.equal(invalidedCalls, 0)
     assert.equal(res, 3)
-    obj.test = 5
+    obj.testProperty.set(5)
     return assert.equal(invalidedCalls, 1)
   })
-  it.skip('can bind to a property with propPath', function () {
-    var invalidateCalls, invalidator, obj, res
-    obj = {}
-    new Property().bind(obj)
-    obj.foo = {}
-    new Property().bind(obj.foo)
-    obj.foo.bar = 4
+  it('can bind to a property with propPath', function () {
+    var invalidateCalls, invalidator, res
+    const obj = {
+      fooProperty: new Property({
+        default: {
+          barProperty: new Property({
+            default: 4
+          })
+        }
+      })
+    }
     invalidateCalls = 0
     invalidator = new Invalidator(function () {
       return invalidateCalls++
@@ -229,13 +233,13 @@ describe('Invalidator', function () {
     invalidator.bind()
     assert.equal(4, res)
     assert.equal(0, invalidateCalls)
-    obj.getPropertyInstance('foo').changed()
+    obj.fooProperty.setter.changed()
     assert.equal(1, invalidateCalls)
-    obj.foo.getPropertyInstance('bar').changed()
+    obj.fooProperty.get().barProperty.setter.changed()
     assert.equal(2, invalidateCalls)
-    obj.foo.bar = 5
+    obj.fooProperty.get().barProperty.set(5)
     assert.equal(5, invalidator.propPath('foo.bar'))
-    obj.foo = null
+    obj.fooProperty.set(null)
     return assert.isNull(invalidator.propPath('foo.bar'))
   })
   it('should remove old value when the listener is triggered', function () {
@@ -244,7 +248,7 @@ describe('Invalidator', function () {
       test: 1
     }
     invalidator = new Invalidator('test', invalidated)
-    res = invalidator.prop('test')
+    res = invalidator.propByName('test')
     assert.equal(res, 1)
     invalidator.bind()
     assert.equal(invalidated.test, 1)

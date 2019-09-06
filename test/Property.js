@@ -287,11 +287,14 @@ describe('Property', function () {
       prop.get()
       return assert.instanceOf(prop.getter.invalidator, Invalidator)
     })
-    it.skip('allow implicit target for invalidators', function () {
+    it('allow implicit target for invalidators', function () {
       var prop, res
       prop = new Property({
         calcul: function (invalidated) {
-          return invalidated.prop('test')
+          return invalidated.propByName('test')
+        },
+        scope: {
+          test: 4
         }
       })
       res = prop.get()
@@ -667,36 +670,38 @@ describe('Property', function () {
       res = prop.get()
       return assert.isTrue(res, 'removed property')
     })
-    it.skip('returns a value composed of many nested remote properties', function () {
-      var nested, prop, remote, res
-      remote = {
-        prop3: {}
-      }
-      new Property({
-        default: {
-          val: 1
+    it('returns a value composed of many nested remote properties', function () {
+      let res
+      const remote = {
+        prop1Property: new Property({
+          default: {
+            val: 1
+          }
+        }),
+        prop2Property: new Property({
+          default: {
+            valProperty: new Property({
+              default: 3
+            })
+          }
+        }),
+        prop3: {
+          valProperty: new Property({
+            default: 5
+          })
         }
-      }).bind(remote)
-      nested = {}
-      new Property({
-        default: 3
-      }).bind(nested)
-      new Property({
-        default: nested
-      }).bind(remote)
-      new Property({
-        default: 5
-      }).bind(remote.prop3)
-      prop = new Property({
+      }
+
+      const prop = new Property({
         composed: 'sum',
         members: [],
         default: 0
       })
-      prop.members.addPropertyRef('prop1.val', remote)
-      prop.members.addPropertyRef('prop2.val', remote)
+      prop.members.addPropertyPath('prop1.val', remote)
+      prop.members.addPropertyPath('prop2.val', remote)
       res = prop.get()
       assert.equal(res, 4)
-      prop.members.addPropertyRef('prop3.val', remote)
+      prop.members.addPropertyPath('prop3.val', remote)
       res = prop.get()
       assert.equal(res, 9)
       prop.members.removeRef('prop3.val', remote)

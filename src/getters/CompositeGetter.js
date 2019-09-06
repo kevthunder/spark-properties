@@ -93,9 +93,8 @@ CompositeGetter.joinFunctions = {
 
 CompositeGetter.Members = class Members extends Collection {
   addProperty (prop) {
-    var fn
     if (this.findRefIndex(null, prop) === -1) {
-      fn = function (prev, invalidator) {
+      const fn = function (prev, invalidator) {
         return invalidator.prop(prop)
       }
       fn.ref = {
@@ -105,6 +104,19 @@ CompositeGetter.Members = class Members extends Collection {
       this.push(fn)
     }
     return this
+  }
+
+  addPropertyPath (name, obj) {
+    if (this.findRefIndex(name, obj) === -1) {
+      const fn = function (prev, invalidator) {
+        return invalidator.propPath(name, obj)
+      }
+      fn.ref = {
+        name: name,
+        obj: obj
+      }
+      return this.push(fn)
+    }
   }
 
   removeProperty (prop) {

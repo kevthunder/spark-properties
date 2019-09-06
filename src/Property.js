@@ -16,7 +16,16 @@ const CollectionSetter = require('./setters/CollectionSetter')
  */
 class Property {
   /**
-   * @param {*} options
+   * @typedef {Object} PropertyOptions
+   * @property {*} [default]
+   * @property {function(import("./Invalidator")): T} [calcul]
+   * @property {function(): T} [get]
+   * @property {function(T)} [set]
+   * @property {boolean|string|function(T,T):T} [composed]
+   * @property {boolean|Object} [collection]
+   * @property {*} [scope]
+   *
+   * @param {PropertyOptions} options
    */
   constructor (options = {}) {
     this.options = Object.assign({}, Property.defaultOptions, options)
