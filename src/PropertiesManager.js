@@ -38,7 +38,7 @@ class PropertiesManager {
   }
 
   initProperties () {
-    Object.keys(this.propertiesOptions).forEach((name) => this.addProperty(name, this.propertiesOptions[name]))
+    this.addProperties(this.propertiesOptions)
     return this
   }
 
@@ -48,7 +48,14 @@ class PropertiesManager {
   }
 
   addProperty (name, options) {
-    this.properties.push(new Property(Object.assign({ name: name }, this.globalOptions, options)))
+    const prop = new Property(Object.assign({ name: name }, this.globalOptions, options))
+    this.properties.push(prop)
+    return this
+  }
+
+  addProperties (options) {
+    Object.keys(options).foreach((name) => this.addProperty(name, options[name]))
+    return this
   }
 
   getProperty (name) {
