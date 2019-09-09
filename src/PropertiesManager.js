@@ -8,7 +8,6 @@ class PropertiesManager {
     this.properties = []
     this.globalOptions = Object.assign({}, options)
     this.propertiesOptions = Object.assign({}, properties)
-    this.init()
   }
 
   /**
@@ -54,18 +53,34 @@ class PropertiesManager {
   }
 
   addProperties (options) {
-    Object.keys(options).foreach((name) => this.addProperty(name, options[name]))
+    Object.keys(options).forEach((name) => this.addProperty(name, options[name]))
     return this
   }
 
+  /**
+   * @param {string} name
+   * @returns {Property}
+   */
   getProperty (name) {
-    this.properties.find((prop) => prop.options.name === name)
+    return this.properties.find((prop) => prop.options.name === name)
+  }
+
+  setPropertiesData (data, options = {}) {
+    Object.keys(data).forEach((key) => {
+      if (((options.whitelist == null) || options.whitelist.indexOf(key) !== -1) && ((options.blacklist == null) || options.blacklist.indexOf(key) === -1)) {
+        const prop = this.getProperty(key)
+        if (prop) {
+          prop.set(data[key])
+        }
+      }
+    })
+    return this
   }
 
   getManualDataProperties () {
     return this.properties.reduce((res, prop) => {
       if (prop.getter.calculated && prop.manual) {
-        res[prop.name] = prop.get()
+        res[prop.options.name] = prop.get()
       }
       return res
     }, {})

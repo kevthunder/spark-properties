@@ -95,7 +95,7 @@ class PropertyWatcher extends Binder {
   }
 
   handleChange (value, old) {
-    return this.callback.call(this.scope, old)
+    return this.callback.call(this.scope, value, old)
   }
 };
 

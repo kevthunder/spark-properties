@@ -11,7 +11,7 @@ class CollectionPropertyWatcher extends PropertyWatcher {
   handleChange (value, old) {
     old = value.copy(old || [])
     if (typeof this.callback === 'function') {
-      this.callback.call(this.scope, old)
+      this.callback.call(this.scope, value, old)
     }
     if (typeof this.onAdded === 'function') {
       value.forEach((item, i) => {
