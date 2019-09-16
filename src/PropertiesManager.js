@@ -32,8 +32,21 @@ class PropertiesManager {
     }, {})
   }
 
-  mergePropertyOptions (oldOpt, newOpt) {
-    return Object.assign({}, oldOpt, newOpt)
+  mergePropertyOptions (...arg) {
+    const notOverridable = ['default', 'scope']
+    return arg.reduce((res, opt) => {
+      Object.keys(opt).forEach((name) => {
+        if (typeof res[name] === 'function' && typeof opt[name] === 'function' && !notOverridable.includes(name)) {
+          const oldFunct = res[name]
+          res[name] = function (...arg) {
+            return opt[name].call(this, ...arg, oldFunct.bind(this))
+          }
+        } else {
+          res[name] = opt[name]
+        }
+      })
+      return res
+    }, {})
   }
 
   initProperties () {

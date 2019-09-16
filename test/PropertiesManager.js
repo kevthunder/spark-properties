@@ -183,71 +183,57 @@ describe('PropertiesManager', function () {
     assert.equal(manager.getProperty('c').get(), 0)
     assert.equal(manager.getProperty('d').get(), 0)
   })
-  it.skip('keeps old options when overriding a property', function () {
-    var TestClass, obj
-    TestClass = (function () {
-      class TestClass extends Element {
-        init () {
-          return this.callcount = 0
+  it('keeps old options when overriding a property', function () {
+    let calls = 0
+    const manager = new PropertiesManager({
+      a: {
+        change: function () {
+          calls += 1
         }
-      };
-
-      TestClass.properties({
-        prop: {
-          change: function () {
-            return this.callcount += 1
-          }
-        }
-      })
-
-      return TestClass
-    }.call(this))
-    TestClass.properties({
-      prop: {
+      }
+    })
+    const manager2 = manager.copyWith({
+      a: {
         default: 10
       }
     })
-    obj = new TestClass()
-    assert.equal(obj.callcount, 1)
-    assert.equal(obj.prop, 10)
-    assert.equal(obj.callcount, 1)
-    obj.prop = 7
-    assert.equal(obj.prop, 7)
-    return assert.equal(obj.callcount, 2)
+    manager2.initProperties()
+
+    assert.equal(calls, 1)
+    assert.equal(manager2.getProperty('a').get(), 10)
+    assert.equal(calls, 1)
+    manager2.getProperty('a').set(7)
+    assert.equal(manager2.getProperty('a').get(), 7)
+    assert.equal(calls, 2)
   })
-  it.skip('allows to call an overrided function of a property', function () {
-    var TestClass, obj
-    TestClass = (function () {
-      class TestClass extends Element {
-        init () {
-          this.callcount1 = 0
-          this.callcount2 = 0
+  it('allows to call an overrided function of a property', function () {
+    let callcount1 = 0
+    let callcount2 = 0
+    const scope = {}
+    const manager = new PropertiesManager({
+      a: {
+        change: function () {
+          callcount1 += 1
+          assert.equal(this, scope)
         }
-      };
-
-      TestClass.properties({
-        prop: {
-          change: function (old) {
-            this.callcount1 += 1
-          }
-        }
-      })
-
-      return TestClass
-    }.call(this))
-    TestClass.properties({
-      prop: {
-        change: function (old, overrided) {
-          this.callcount2 += 1
+      }
+    }, { scope: scope })
+    const manager2 = manager.copyWith({
+      a: {
+        change: function (val, old, parent) {
+          parent(val, old)
+          callcount2 += 1
+          assert.equal(this, scope)
         }
       }
     })
-    obj = new TestClass()
-    assert.equal(obj.callcount1, 1)
-    assert.equal(obj.callcount2, 1)
-    obj.prop = 7
-    assert.equal(obj.prop, 7)
-    assert.equal(obj.callcount1, 2, 'original callcount')
-    return assert.equal(obj.callcount2, 2, 'new callcount')
+    manager2.initProperties()
+
+    assert.equal(callcount1, 1, 'original callcount1')
+    assert.equal(callcount2, 1, 'original callcount2')
+    manager2.getProperty('a').set(7)
+    assert.equal(manager2.getProperty('a').get(), 7)
+    assert.equal(callcount1, 2, 'new callcount1')
+    assert.equal(callcount2, 2, 'new callcount2')
   })
 })
