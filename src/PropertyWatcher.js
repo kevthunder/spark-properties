@@ -1,10 +1,22 @@
 
 const Binder = require('./Binder')
 
+/**
+ * @template T
+ */
 class PropertyWatcher extends Binder {
-  constructor (options1) {
+  /**
+   * @typedef {Object} PropertyWatcherOptions
+   * @property {import("./Property")<T>|string} property
+   * @property {function(T,T)} callback
+   * @property {boolean} [autoBind]
+   * @property {*} [scope]
+   *
+   * @param {PropertyWatcherOptions} options
+   */
+  constructor (options) {
     super()
-    this.options = options1
+    this.options = options
     this.invalidateCallback = () => {
       return this.invalidate()
     }
@@ -19,9 +31,6 @@ class PropertyWatcher extends Binder {
 
   loadOptions (options) {
     this.scope = options.scope
-    if (options.loaderAsScope && (options.loader != null)) {
-      this.scope = options.loader
-    }
     this.property = options.property
     this.callback = options.callback
     this.autoBind = options.autoBind

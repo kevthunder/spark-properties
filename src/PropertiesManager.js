@@ -33,20 +33,23 @@ class PropertiesManager {
   }
 
   mergePropertyOptions (...arg) {
-    const notOverridable = ['default', 'scope']
+    const notMergable = ['default', 'scope']
     return arg.reduce((res, opt) => {
       Object.keys(opt).forEach((name) => {
-        if (typeof res[name] === 'function' && typeof opt[name] === 'function' && !notOverridable.includes(name)) {
-          const oldFunct = res[name]
-          res[name] = function (...arg) {
-            return opt[name].call(this, ...arg, oldFunct.bind(this))
-          }
+        if (typeof res[name] === 'function' && typeof opt[name] === 'function' && !notMergable.includes(name)) {
+          res[name] = this.mergeCallback(res[name], opt[name])
         } else {
           res[name] = opt[name]
         }
       })
       return res
     }, {})
+  }
+
+  mergeCallback (oldFunct, newFunct) {
+    return function (...arg) {
+      return newFunct.call(this, ...arg, oldFunct.bind(this))
+    }
   }
 
   initProperties () {
