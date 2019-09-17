@@ -9,6 +9,10 @@ class EventBind extends Binder {
     this.callback = callback
   }
 
+  canBind () {
+    return (this.callback != null) && (this.target != null)
+  }
+
   getRef () {
     return {
       event: this.event,
@@ -49,10 +53,6 @@ class EventBind extends Binder {
 
   equals (eventBind) {
     return super.equals(eventBind) && eventBind.event === this.event
-  }
-
-  match (event, target) {
-    return event === this.event && target === this.target
   }
 
   static checkEmitter (emitter, fatal = true) {

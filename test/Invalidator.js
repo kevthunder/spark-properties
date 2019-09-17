@@ -183,6 +183,21 @@ describe('Invalidator', function () {
     res = invalidator.propByName('test')
     return assert.equal(res, 1)
   })
+  it('allow to get property from a manager', function () {
+    const prop = new Property({
+      default: 3
+    })
+    const obj = {
+      propertiesManager: {
+        getProperty: function () {
+          return prop
+        }
+      }
+    }
+    const invalidator = new Invalidator(null, obj)
+    const res = invalidator.propByName('test')
+    return assert.equal(res, 3)
+  })
   it('throws an error when prop name is not a valid property', function () {
     const invalidated = {
       test: 1
@@ -296,7 +311,7 @@ describe('Invalidator', function () {
     assert.equal(res, 2)
     assert.equal(invalidator.unknowns.length, 0, 'unknowns after call prop')
     prop.invalidate()
-    return assert.equal(invalidator.unknowns.length, 1, 'unknowns after invalidation')
+    assert.equal(invalidator.unknowns.length, 1, 'unknowns after invalidation')
   })
   it('should call unknown when there is a new unknown', function () {
     var invalidated, invalidator, res, unknownCalls
@@ -319,7 +334,8 @@ describe('Invalidator', function () {
     assert.equal(unknownCalls, 0, 'unknownCalls after call prop')
     prop.invalidate()
     assert.equal(invalidator.unknowns.length, 1, 'unknowns after invalidation')
-    return assert.equal(unknownCalls, 1, 'unknownCalls after invalidation')
+    assert.equal(unknownCalls, 1, 'unknownCalls after invalidation')
+    assert.exists(invalidator.findUnknown(prop))
   })
   it('can validate unknowns', function () {
     var getCalls, invalidator, res

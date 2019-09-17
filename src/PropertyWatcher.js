@@ -49,9 +49,19 @@ class PropertyWatcher extends Binder {
 
   getProperty () {
     if (typeof this.property === 'string') {
-      this.property = this.scope.getPropertyInstance(this.property)
+      return this.getPropByName(this.property)
     }
     return this.property
+  }
+
+  getPropByName (prop, target = this.scope) {
+    if (target.propertiesManager != null) {
+      return target.propertiesManager.getProperty(prop)
+    } else if (target[prop + 'Property'] != null) {
+      return target[prop + 'Property']
+    } else {
+      throw new Error(`Could not find the property ${prop}`)
+    }
   }
 
   checkBind () {
@@ -78,18 +88,9 @@ class PropertyWatcher extends Binder {
   }
 
   getRef () {
-    if (typeof this.property === 'string') {
-      return {
-        property: this.property,
-        target: this.scope,
-        callback: this.callback
-      }
-    } else {
-      return {
-        property: this.property.property.name,
-        target: this.property.obj,
-        callback: this.callback
-      }
+    return {
+      property: this.getProperty(),
+      callback: this.callback
     }
   }
 

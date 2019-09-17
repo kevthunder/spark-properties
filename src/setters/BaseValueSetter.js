@@ -5,7 +5,7 @@ class BaseValueSetter extends BaseSetter {
     val = this.ingest(val)
     if (this.prop.getter.baseValue !== val) {
       this.prop.getter.baseValue = val
-      return this.prop.invalidate()
+      this.prop.invalidate()
     }
     return this
   }

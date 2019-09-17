@@ -17,10 +17,11 @@ const CollectionSetter = require('./setters/CollectionSetter')
 class Property {
   /**
    * @typedef {Object} PropertyOptions
-   * @property {*} [default]
+   * @property {T} [default]
    * @property {function(import("./Invalidator")): T} [calcul]
    * @property {function(): T} [get]
    * @property {function(T)} [set]
+   * @property {function(T,T)|import("./PropertyWatcher")<T>} [change]
    * @property {boolean|string|function(T,T):T} [composed]
    * @property {boolean|Object} [collection]
    * @property {*} [scope]

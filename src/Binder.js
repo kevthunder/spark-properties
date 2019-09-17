@@ -18,7 +18,7 @@ class Binder extends Referred {
   }
 
   canBind () {
-    return (this.callback != null) && (this.target != null)
+    return true
   }
 
   doBind () {

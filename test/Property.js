@@ -3,6 +3,7 @@ const assert = require('chai').assert
 const Property = require('../src/Property')
 const EventEmitter = require('events').EventEmitter
 const Invalidator = require('../src/Invalidator')
+const PropertyWatcher = require('../src/PropertyWatcher')
 const Collection = require('spark-collection')
 
 describe('Property', function () {
@@ -20,6 +21,19 @@ describe('Property', function () {
       assert.equal(prop.getter.calculated, true)
       prop.invalidate()
       assert.equal(prop.getter.calculated, false)
+    })
+  })
+  describe('with ManualSetter', function () {
+    it('set the value using a custom function', function () {
+      let value = 0
+      const prop = new Property({
+        set: function (val) {
+          value = val
+        }
+      })
+      assert.equal(value, 0)
+      prop.set(2)
+      assert.equal(value, 2)
     })
   })
   describe('with SimpleGetter', function () {
@@ -61,6 +75,26 @@ describe('Property', function () {
           }
           call++
         }
+      })
+      prop.set(11)
+      assert.equal(call, 2)
+    })
+    it('access the change option to be a watcher', function () {
+      var call = 0
+      const prop = new Property({
+        default: 7,
+        change: new PropertyWatcher({
+          callback: function (val, old) {
+            if (call === 0) {
+              assert.equal(val, 7)
+              assert.isUndefined(old)
+            } else {
+              assert.equal(val, 11)
+              assert.equal(old, 7)
+            }
+            call++
+          }
+        })
       })
       prop.set(11)
       assert.equal(call, 2)
@@ -800,6 +834,20 @@ describe('Property', function () {
       assert.equal(prop.getter.invalidator.unknowns.length, 0, 'unknowns before invalidation')
       subProp2.invalidate()
       return assert.isAbove(prop.getter.invalidator.unknowns.length, 0, 'unknowns after invalidation')
+    })
+    it('can create Getter for the members on Scope', function () {
+      const scope = {}
+      const prop = new Property({
+        name: 'test',
+        composed: 'sum',
+        members: [1, 2, 3],
+        scope: scope
+      })
+      prop.createScopeGetterSetters()
+      assert.equal(scope.test, 6)
+      assert.deepEqual(scope.testMembers.toArray(), [1, 2, 3])
+      scope.testMembers.add(4)
+      assert.equal(scope.test, 10)
     })
   })
   describe('with CollectionSetter', function () {
