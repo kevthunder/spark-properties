@@ -1,6 +1,4 @@
-const Referred = require('./Referred')
-
-class Binder extends Referred {
+class Binder {
   toggleBind (val = !this.binded) {
     if (val) {
       return this.bind()
@@ -35,10 +33,6 @@ class Binder extends Referred {
 
   doUnbind () {
     throw new Error('Not implemented')
-  }
-
-  equals (binder) {
-    return this.compareRefered(binder)
   }
 
   destroy () {

@@ -1,5 +1,6 @@
 
 const Binder = require('./Binder')
+const Reference = require('./Reference')
 
 class EventBind extends Binder {
   constructor (event1, target1, callback) {
@@ -11,14 +12,6 @@ class EventBind extends Binder {
 
   canBind () {
     return (this.callback != null) && (this.target != null)
-  }
-
-  getRef () {
-    return {
-      event: this.event,
-      target: this.target,
-      callback: this.callback
-    }
   }
 
   bindTo (target) {
@@ -52,7 +45,11 @@ class EventBind extends Binder {
   }
 
   equals (eventBind) {
-    return super.equals(eventBind) && eventBind.event === this.event
+    return eventBind.constructor === this.constructor &&
+      eventBind != null &&
+      eventBind.event === this.event &&
+      Reference.compareVal(eventBind.target, this.target) &&
+      Reference.compareVal(eventBind.callback, this.callback)
   }
 
   static checkEmitter (emitter, fatal = true) {

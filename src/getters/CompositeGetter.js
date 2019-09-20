@@ -1,6 +1,7 @@
 const InvalidatedGetter = require('./InvalidatedGetter')
 const Collection = require('spark-collection')
 const Invalidator = require('../Invalidator')
+const Reference = require('../Reference')
 
 class CompositeGetter extends InvalidatedGetter {
   init () {
@@ -94,29 +95,25 @@ CompositeGetter.joinFunctions = {
 CompositeGetter.Members = class Members extends Collection {
   addProperty (prop) {
     if (this.findRefIndex(null, prop) === -1) {
-      const fn = function (prev, invalidator) {
+      this.push(Reference.makeReferred(function (prev, invalidator) {
         return invalidator.prop(prop)
-      }
-      fn.ref = {
-        name: null,
-        obj: prop
-      }
-      this.push(fn)
+      }, {
+        prop: prop
+      }))
     }
     return this
   }
 
   addPropertyPath (name, obj) {
     if (this.findRefIndex(name, obj) === -1) {
-      const fn = function (prev, invalidator) {
+      this.push(Reference.makeReferred(function (prev, invalidator) {
         return invalidator.propPath(name, obj)
-      }
-      fn.ref = {
+      }, {
         name: name,
         obj: obj
-      }
-      return this.push(fn)
+      }))
     }
+    return this
   }
 
   removeProperty (prop) {
@@ -125,37 +122,30 @@ CompositeGetter.Members = class Members extends Collection {
   }
 
   addValueRef (val, name, obj) {
-    var fn
     if (this.findRefIndex(name, obj) === -1) {
-      fn = function (prev, invalidator) {
+      this.push(Reference.makeReferred(function (prev, invalidator) {
         return val
-      }
-      fn.ref = {
+      }, {
         name: name,
         obj: obj,
         val: val
-      }
-      this.push(fn)
+      }))
     }
     return this
   }
 
   setValueRef (val, name, obj) {
-    var fn, i, ref
-    i = this.findRefIndex(name, obj)
+    const i = this.findRefIndex(name, obj)
     if (i === -1) {
       this.addValueRef(val, name, obj)
     } else if (this.get(i).ref.val !== val) {
-      ref = {
+      this.set(i, Reference.makeReferred(function (prev, invalidator) {
+        return val
+      }, {
         name: name,
         obj: obj,
         val: val
-      }
-      fn = function (prev, invalidator) {
-        return val
-      }
-      fn.ref = ref
-      this.set(i, fn)
+      }))
     }
     return this
   }

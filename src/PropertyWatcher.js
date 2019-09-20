@@ -1,5 +1,6 @@
 
 const Binder = require('./Binder')
+const Reference = require('./Reference')
 
 /**
  * @template T
@@ -87,11 +88,12 @@ class PropertyWatcher extends Binder {
     return this.getProperty().events.off('updated', this.updateCallback)
   }
 
-  getRef () {
-    return {
-      property: this.getProperty(),
-      callback: this.callback
-    }
+  equals (watcher) {
+    return watcher.constructor === this.constructor &&
+      watcher != null &&
+      watcher.event === this.event &&
+      watcher.getProperty() === this.getProperty() &&
+      Reference.compareVal(watcher.callback, this.callback)
   }
 
   invalidate () {

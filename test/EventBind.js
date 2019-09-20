@@ -1,6 +1,7 @@
 
 const assert = require('chai').assert
 const EventBind = require('../src/EventBind')
+const Reference = require('../src/Reference')
 
 describe('EventBind', function () {
   const aliases = {
@@ -12,15 +13,12 @@ describe('EventBind', function () {
     var bind1, bind2, bind3, emitter, maker, testEvent
     testEvent = 'test'
     maker = function (val) {
-      var callback
-      callback = function () {
+      return Reference.makeReferred(function () {
         return null
-      }
-      callback.ref = {
+      }, {
         maker: maker,
         val: val
-      }
-      return callback
+      })
     }
     emitter = {}
     bind1 = new EventBind(testEvent, emitter, maker(1))
@@ -33,15 +31,12 @@ describe('EventBind', function () {
     var bind1, bind2, emitter, maker, testEvent
     testEvent = 'test'
     maker = function (val) {
-      var callback
-      callback = function () {
+      return Reference.makeReferred(function () {
         return null
-      }
-      callback.ref = {
+      }, {
         maker: maker,
         val: val
-      }
-      return callback
+      })
     }
     emitter = {}
     bind1 = new EventBind(testEvent, emitter, maker(1))
