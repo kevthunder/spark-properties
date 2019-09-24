@@ -45,8 +45,8 @@ class EventBind extends Binder {
   }
 
   equals (eventBind) {
-    return eventBind.constructor === this.constructor &&
-      eventBind != null &&
+    return eventBind != null &&
+      eventBind.constructor === this.constructor &&
       eventBind.event === this.event &&
       Reference.compareVal(eventBind.target, this.target) &&
       Reference.compareVal(eventBind.callback, this.callback)

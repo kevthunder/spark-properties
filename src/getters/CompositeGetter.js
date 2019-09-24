@@ -117,67 +117,60 @@ CompositeGetter.Members = class Members extends Collection {
   }
 
   removeProperty (prop) {
-    this.removeRef(null, prop)
+    this.removeRef({ prop: prop })
     return this
   }
 
-  addValueRef (val, name, obj) {
-    if (this.findRefIndex(name, obj) === -1) {
-      this.push(Reference.makeReferred(function (prev, invalidator) {
+  addValueRef (val, data) {
+    if (this.findRefIndex(data) === -1) {
+      const fn = Reference.makeReferred(function (prev, invalidator) {
         return val
-      }, {
-        name: name,
-        obj: obj,
-        val: val
-      }))
-    }
-    return this
-  }
-
-  setValueRef (val, name, obj) {
-    const i = this.findRefIndex(name, obj)
-    if (i === -1) {
-      this.addValueRef(val, name, obj)
-    } else if (this.get(i).ref.val !== val) {
-      this.set(i, Reference.makeReferred(function (prev, invalidator) {
-        return val
-      }, {
-        name: name,
-        obj: obj,
-        val: val
-      }))
-    }
-    return this
-  }
-
-  getValueRef (name, obj) {
-    return this.findByRef(name, obj).ref.val
-  }
-
-  addFunctionRef (fn, name, obj) {
-    if (this.findRefIndex(name, obj) === -1) {
-      fn.ref = {
-        name: name,
-        obj: obj
-      }
+      }, data)
+      fn.val = val
       this.push(fn)
     }
     return this
   }
 
-  findByRef (name, obj) {
-    return this._array[this.findRefIndex(name, obj)]
+  setValueRef (val, data) {
+    const i = this.findRefIndex(data)
+    if (i === -1) {
+      this.addValueRef(val, data)
+    } else if (this.get(i).val !== val) {
+      const fn = Reference.makeReferred(function (prev, invalidator) {
+        return val
+      }, data)
+      fn.val = val
+      this.set(i, fn)
+    }
+    return this
   }
 
-  findRefIndex (name, obj) {
+  getValueRef (data) {
+    return this.findByRef(data).val
+  }
+
+  addFunctionRef (fn, data) {
+    if (this.findRefIndex(data) === -1) {
+      fn = Reference.makeReferred(fn, data)
+      this.push(fn)
+    }
+    return this
+  }
+
+  findByRef (data) {
+    return this._array[this.findRefIndex(data)]
+  }
+
+  findRefIndex (data) {
     return this._array.findIndex(function (member) {
-      return (member.ref != null) && member.ref.obj === obj && member.ref.name === name
+      return (member.ref != null) && member.ref.compareData(data)
     })
   }
 
-  removeRef (name, obj) {
+  removeRef (data) {
     var index, old
-    index = this.findRefIndex(name, obj)
+    index = this.findRefIndex(data)
     if (index !== -1) {
       old = this.toArray()
       this._array.splice(index, 1)

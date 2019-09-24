@@ -784,7 +784,10 @@ describe('Property', function () {
       prop.members.addPropertyPath('prop3.val', remote)
       res = prop.get()
       assert.equal(res, 9)
-      prop.members.removeRef('prop3.val', remote)
+      prop.members.removeRef({
+        name: 'prop3.val',
+        obj: remote
+      })
       res = prop.get()
       return assert.equal(res, 4)
     })

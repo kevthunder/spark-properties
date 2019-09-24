@@ -81,17 +81,13 @@ class Invalidator extends Binder {
         return prop.get()
       }, prop)
     }
-    callback.ref = {
-      prop: prop
-    }
+    callback.prop = prop
     return callback
   }
 
   addUnknown (fn, prop) {
     if (!this.findUnknown(prop)) {
-      fn.ref = {
-        prop: prop
-      }
+      fn.prop = prop
       this.unknowns.push(fn)
       return this.unknown()
     }
@@ -100,7 +96,7 @@ class Invalidator extends Binder {
   findUnknown (prop) {
     if (prop != null) {
       return this.unknowns.find(function (unknown) {
-        return unknown.ref.prop === prop
+        return unknown.prop === prop
       })
     }
   }

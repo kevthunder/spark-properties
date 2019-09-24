@@ -8,6 +8,20 @@ class Reference {
   }
 
   compareData (data) {
+    if (data instanceof Reference) {
+      return this.equals(data)
+    }
+    if (this.data === data) {
+      return true
+    }
+    if (this.data == null || data == null) {
+      return false
+    }
+    if (typeof this.data === 'object' && typeof data === 'object') {
+      return Object.keys(this.data).length === Object.keys(data).length && Object.keys(data).every((key) => {
+        return Reference.compareVal(this.data[key], data[key])
+      })
+    }
     return Reference.compareVal(this.data, data)
   }
 
@@ -43,7 +57,11 @@ class Reference {
   }
 
   static makeReferred (obj, data) {
-    obj.ref = new Reference(data)
+    if (data instanceof Reference) {
+      obj.ref = data
+    } else {
+      obj.ref = new Reference(data)
+    }
     obj.equals = function (obj2) {
       return obj2 != null && this.ref.equals(obj2.ref)
     }
