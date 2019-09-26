@@ -3,7 +3,7 @@ const assert = require('chai').assert
 const Property = require('../src/Property')
 const EventEmitter = require('events').EventEmitter
 const Invalidator = require('../src/Invalidator')
-const PropertyWatcher = require('../src/PropertyWatcher')
+const PropertyWatcher = require('../src/watchers/PropertyWatcher')
 const Collection = require('spark-collection')
 
 describe('Property', function () {

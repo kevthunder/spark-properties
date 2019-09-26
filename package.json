@@ -8,8 +8,8 @@
     "url": "git://github.com/kevthunder/spark-properties.git"
   },
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha test",
-    "test-debug": "mocha --inspect-brk test",
+    "test": "npm run build & nyc --reporter=html --reporter=text mocha test",
+    "test-debug": "npm run build & mocha --inspect-brk test",
     "build": "gulp buildIndex & eslint --fix index.js"
   },
   "keywords": [

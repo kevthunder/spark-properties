@@ -1,6 +1,6 @@
 const SimpleSetter = require('./SimpleSetter')
 const Collection = require('spark-collection')
-const CollectionPropertyWatcher = require('../CollectionPropertyWatcher')
+const CollectionPropertyWatcher = require('../watchers/CollectionPropertyWatcher')
 
 class CollectionSetter extends SimpleSetter {
   init () {

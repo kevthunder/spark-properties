@@ -1,6 +1,6 @@
 
-const Binder = require('./Binder')
-const Reference = require('./Reference')
+const Binder = require('../Binder')
+const Reference = require('../Reference')
 
 /**
  * @template T

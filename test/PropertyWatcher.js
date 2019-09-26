@@ -1,7 +1,7 @@
 
 const assert = require('chai').assert
 const Property = require('../src/Property')
-const PropertyWatcher = require('../src/PropertyWatcher')
+const PropertyWatcher = require('../src/watchers/PropertyWatcher')
 
 describe('PropertyWatcher', function () {
   it('allow access to old and new value in callback function', function () {

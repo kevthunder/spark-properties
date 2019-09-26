@@ -1,11 +1,9 @@
 module.exports = {
   Binder: require('./Binder'),
-  CollectionPropertyWatcher: require('./CollectionPropertyWatcher'),
   EventBind: require('./EventBind'),
   Invalidator: require('./Invalidator'),
   PropertiesManager: require('./PropertiesManager'),
   Property: require('./Property'),
-  PropertyWatcher: require('./PropertyWatcher'),
   Reference: require('./Reference'),
   getters: {
     BaseGetter: require('./getters/BaseGetter'),
@@ -21,5 +19,9 @@ module.exports = {
     CollectionSetter: require('./setters/CollectionSetter'),
     ManualSetter: require('./setters/ManualSetter'),
     SimpleSetter: require('./setters/SimpleSetter')
+  },
+  watchers: {
+    CollectionPropertyWatcher: require('./watchers/CollectionPropertyWatcher'),
+    PropertyWatcher: require('./watchers/PropertyWatcher')
   }
 }

@@ -1,5 +1,5 @@
 
-const PropertyWatcher = require('../PropertyWatcher')
+const PropertyWatcher = require('../watchers/PropertyWatcher')
 
 class BaseSetter {
   constructor (prop) {
