@@ -1,6 +1,6 @@
 
-const Binder = require('../Binder')
-const Reference = require('../Reference')
+const Binder = require('spark-binding').Binder
+const Reference = require('spark-binding').Reference
 
 /**
  * @template T

@@ -1,7 +1,7 @@
 const InvalidatedGetter = require('./InvalidatedGetter')
 const Collection = require('spark-collection')
 const Invalidator = require('../Invalidator')
-const Reference = require('../Reference')
+const Reference = require('spark-binding').Reference
 
 class CompositeGetter extends InvalidatedGetter {
   init () {

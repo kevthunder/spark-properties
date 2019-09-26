@@ -1,27 +1,24 @@
 module.exports = {
-  Binder: require('./Binder'),
-  EventBind: require('./EventBind'),
-  Invalidator: require('./Invalidator'),
-  PropertiesManager: require('./PropertiesManager'),
-  Property: require('./Property'),
-  Reference: require('./Reference'),
+  Invalidator: require('./src/Invalidator'),
+  PropertiesManager: require('./src/PropertiesManager'),
+  Property: require('./src/Property'),
   getters: {
-    BaseGetter: require('./getters/BaseGetter'),
-    CalculatedGetter: require('./getters/CalculatedGetter'),
-    CompositeGetter: require('./getters/CompositeGetter'),
-    InvalidatedGetter: require('./getters/InvalidatedGetter'),
-    ManualGetter: require('./getters/ManualGetter'),
-    SimpleGetter: require('./getters/SimpleGetter')
+    BaseGetter: require('./src/getters/BaseGetter'),
+    CalculatedGetter: require('./src/getters/CalculatedGetter'),
+    CompositeGetter: require('./src/getters/CompositeGetter'),
+    InvalidatedGetter: require('./src/getters/InvalidatedGetter'),
+    ManualGetter: require('./src/getters/ManualGetter'),
+    SimpleGetter: require('./src/getters/SimpleGetter')
   },
   setters: {
-    BaseSetter: require('./setters/BaseSetter'),
-    BaseValueSetter: require('./setters/BaseValueSetter'),
-    CollectionSetter: require('./setters/CollectionSetter'),
-    ManualSetter: require('./setters/ManualSetter'),
-    SimpleSetter: require('./setters/SimpleSetter')
+    BaseSetter: require('./src/setters/BaseSetter'),
+    BaseValueSetter: require('./src/setters/BaseValueSetter'),
+    CollectionSetter: require('./src/setters/CollectionSetter'),
+    ManualSetter: require('./src/setters/ManualSetter'),
+    SimpleSetter: require('./src/setters/SimpleSetter')
   },
   watchers: {
-    CollectionPropertyWatcher: require('./watchers/CollectionPropertyWatcher'),
-    PropertyWatcher: require('./watchers/PropertyWatcher')
+    CollectionPropertyWatcher: require('./src/watchers/CollectionPropertyWatcher'),
+    PropertyWatcher: require('./src/watchers/PropertyWatcher')
   }
 }

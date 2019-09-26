@@ -1,5 +1,5 @@
-const Binder = require('./Binder')
-const EventBind = require('./EventBind')
+const Binder = require('spark-binding').Binder
+const EventBind = require('spark-binding').EventBind
 
 const pluck = function (arr, fn) {
   var found, index
