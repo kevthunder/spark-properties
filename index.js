@@ -6,7 +6,7 @@ module.exports = {
   PropertiesManager: require('./PropertiesManager'),
   Property: require('./Property'),
   PropertyWatcher: require('./PropertyWatcher'),
-  Referred: require('./Referred'),
+  Reference: require('./Reference'),
   getters: {
     BaseGetter: require('./getters/BaseGetter'),
     CalculatedGetter: require('./getters/CalculatedGetter'),
