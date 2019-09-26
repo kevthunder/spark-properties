@@ -19,6 +19,12 @@ class PropertiesManager {
     return new this.constructor(this.mergePropertiesOptions(this.propertiesOptions, properties), Object.assign({}, this.globalOptions, options))
   }
 
+  withProperty (prop, options) {
+    const properties = {}
+    properties[prop] = options
+    return this.copyWith(properties)
+  }
+
   useScope (scope) {
     return this.copyWith({}, { scope: scope })
   }

@@ -192,10 +192,8 @@ describe('PropertiesManager', function () {
         }
       }
     })
-    const manager2 = manager.copyWith({
-      a: {
-        default: 10
-      }
+    const manager2 = manager.withProperty('a', {
+      default: 10
     })
     manager2.initProperties()
 
