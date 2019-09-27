@@ -42,6 +42,12 @@ class Property {
     this.makeGetter()
     this.setter.init()
     this.getter.init()
+    if (this.options.initWatchers) {
+      this.initWatchers()
+    }
+  }
+
+  initWatchers () {
     this.setter.loadInternalWatcher()
   }
 
@@ -138,6 +144,7 @@ class Property {
 }
 
 Property.defaultOptions = {
-  EventEmitterClass: EventEmitter
+  EventEmitterClass: EventEmitter,
+  initWatchers: true
 }
 module.exports = Property

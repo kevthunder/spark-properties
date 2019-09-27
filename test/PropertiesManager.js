@@ -196,6 +196,7 @@ describe('PropertiesManager', function () {
       default: 10
     })
     manager2.initProperties()
+    manager2.initWatchers()
 
     assert.equal(calls, 1)
     assert.equal(manager2.getProperty('a').get(), 10)
@@ -226,6 +227,7 @@ describe('PropertiesManager', function () {
       }
     })
     manager2.initProperties()
+    manager2.initWatchers()
 
     assert.equal(callcount1, 1, 'original callcount1')
     assert.equal(callcount2, 1, 'original callcount2')
@@ -233,5 +235,28 @@ describe('PropertiesManager', function () {
     assert.equal(manager2.getProperty('a').get(), 7)
     assert.equal(callcount1, 2, 'new callcount1')
     assert.equal(callcount2, 2, 'new callcount2')
+  })
+  it('should not trigger any change before all properties are initiated', function () {
+    const scope = {}
+    let calls = 0
+    const manager = new PropertiesManager({
+      a: {
+        default: 1,
+        change: function () {
+          calls++
+          assert.isDefined(this.bProperty)
+          assert.equal(this.b, 2)
+        }
+      },
+      b: {
+        default: 2
+      }
+    }).useScope(scope)
+    manager.initScope()
+
+    assert.equal(scope.a, 1)
+    assert.equal(scope.b, 2)
+
+    assert.equal(calls, 1)
   })
 })

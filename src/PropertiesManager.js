@@ -6,7 +6,7 @@ class PropertiesManager {
      * @type {Array.<Property>}
      */
     this.properties = []
-    this.globalOptions = Object.assign({}, options)
+    this.globalOptions = Object.assign({ initWatchers: false }, options)
     this.propertiesOptions = Object.assign({}, properties)
   }
 
@@ -65,6 +65,18 @@ class PropertiesManager {
 
   createScopeGetterSetters () {
     this.properties.forEach((prop) => prop.createScopeGetterSetters())
+    return this
+  }
+
+  initWatchers () {
+    this.properties.forEach((prop) => prop.initWatchers())
+    return this
+  }
+
+  initScope () {
+    this.initProperties()
+    this.createScopeGetterSetters()
+    this.initWatchers()
     return this
   }
 
