@@ -198,6 +198,20 @@ describe('Invalidator', function () {
     const res = invalidator.propByName('test')
     return assert.equal(res, 3)
   })
+  it('allow to get an non-dynamic property when there is a manager', function () {
+    var invalidator, obj, res
+    obj = {
+      propertiesManager: {
+        getProperty: function () {
+          return null
+        }
+      },
+      test: 1
+    }
+    invalidator = new Invalidator(null, obj)
+    res = invalidator.propByName('test')
+    return assert.equal(res, 1)
+  })
   it('throws an error when prop name is not a valid property', function () {
     const invalidated = {
       test: 1
@@ -307,6 +321,22 @@ describe('Invalidator', function () {
     })
     invalidator.bind()
     return assert.equal(emitter.listenerCount('test'), 1)
+  })
+  it('can recycle without callback', function () {
+    var emitter, invalidator
+    emitter = new EventEmitter()
+    invalidator = new Invalidator()
+    invalidator.event('test', emitter)
+    assert.equal(emitter.listenerCount('test'), 0)
+    invalidator.bind()
+    assert.equal(emitter.listenerCount('test'), 1)
+    const endRecycle = invalidator.recycle()
+    assert.equal(emitter.listenerCount('test'), 1)
+    invalidator.event('test', emitter)
+    assert.equal(emitter.listenerCount('test'), 1)
+    endRecycle()
+    invalidator.bind()
+    assert.equal(emitter.listenerCount('test'), 1)
   })
   it('should unbind old unused bindEvent after calling recycle', function () {
     var emitter, invalidator
