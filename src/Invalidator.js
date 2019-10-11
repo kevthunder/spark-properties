@@ -126,12 +126,15 @@ class Invalidator extends Binder {
 
   propByName (prop, target = this.scope) {
     if (target.propertiesManager != null) {
-      return this.prop(target.propertiesManager.getProperty(prop))
-    } else if (target[prop + 'Property'] != null) {
-      return this.prop(target[prop + 'Property'])
-    } else {
-      return target[prop]
+      const property = target.propertiesManager.getProperty(prop)
+      if (property) {
+        return this.prop(property)
+      }
     }
+    if (target[prop + 'Property'] != null) {
+      return this.prop(target[prop + 'Property'])
+    }
+    return target[prop]
   }
 
   propPath (path, target = this.scope) {

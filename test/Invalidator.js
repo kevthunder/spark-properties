@@ -257,6 +257,28 @@ describe('Invalidator', function () {
     obj.fooProperty.set(null)
     return assert.isNull(invalidator.propPath('foo.bar'))
   })
+  it('can bind to a property with propPath with plain object', function () {
+    var invalidateCalls, invalidator, res
+    const obj = {
+      foo: {
+        barProperty: new Property({
+          default: 4
+        })
+      }
+    }
+    invalidateCalls = 0
+    invalidator = new Invalidator(function () {
+      return invalidateCalls++
+    }, obj)
+    res = invalidator.propPath('foo.bar')
+    invalidator.bind()
+    assert.equal(res, 4)
+    assert.equal(invalidateCalls, 0)
+    obj.foo.barProperty.setter.changed()
+    assert.equal(invalidateCalls, 1)
+    obj.foo.barProperty.set(5)
+    assert.equal(invalidator.propPath('foo.bar'), 5)
+  })
   it('should remove old value when the listener is triggered', function () {
     var invalidated, invalidator, res
     invalidated = {
