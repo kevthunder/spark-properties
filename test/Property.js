@@ -79,12 +79,14 @@ describe('Property', function () {
       prop.set(11)
       assert.equal(call, 2)
     })
-    it('access the change option to be a watcher', function () {
+    it('allow the change option to be a watcher', function () {
       var call = 0
+      const scope = {}
       const prop = new Property({
         default: 7,
         change: new PropertyWatcher({
           callback: function (val, old) {
+            assert.equal(this, scope)
             if (call === 0) {
               assert.equal(val, 7)
               assert.isUndefined(old)
@@ -94,7 +96,8 @@ describe('Property', function () {
             }
             call++
           }
-        })
+        }),
+        scope: scope
       })
       prop.set(11)
       assert.equal(call, 2)

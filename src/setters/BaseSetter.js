@@ -26,6 +26,7 @@ class BaseSetter {
     } else if (changeOpt != null && typeof changeOpt.copyWith === 'function') {
       return changeOpt.copyWith({
         property: this.prop,
+        scope: this.prop.options.scope,
         autoBind: true
       })
     }
