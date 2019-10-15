@@ -1,6 +1,6 @@
 {
   "name": "spark-properties",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Properties with data binding",
   "main": "index.js",
   "repository": {
