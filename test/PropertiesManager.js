@@ -1,6 +1,7 @@
 
 const assert = require('chai').assert
 const PropertiesManager = require('../src/PropertiesManager')
+const EventEmitter = require('events').EventEmitter
 
 describe('PropertiesManager', function () {
   it('can get a property by name', function () {
@@ -235,6 +236,31 @@ describe('PropertiesManager', function () {
     assert.equal(manager2.getProperty('a').get(), 7)
     assert.equal(callcount1, 2, 'new callcount1')
     assert.equal(callcount2, 2, 'new callcount2')
+  })
+
+  it('allows to call an overrided calcul function of a property', function () {
+    const emitter = new EventEmitter()
+    const scope = {}
+    const manager = new PropertiesManager({
+      a: {
+        calcul: function (invalidator) {
+          invalidator.event('test', emitter)
+          return 1
+        }
+      }
+    }, { scope: scope })
+    const manager2 = manager.copyWith({
+      a: {
+        calcul: function (invalidator, parent) {
+          return parent(invalidator) + 1
+        }
+      }
+    })
+    manager2.initProperties()
+    manager2.initWatchers()
+
+    assert.equal(manager2.getProperty('a').get(), 2)
+    assert.equal(emitter.listenerCount('test'), 1)
   })
   it('should not trigger any change before all properties are initiated', function () {
     const scope = {}

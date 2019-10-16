@@ -53,9 +53,12 @@ class PropertiesManager {
   }
 
   mergeCallback (oldFunct, newFunct) {
-    return function (...arg) {
+    const fn = function (...arg) {
       return newFunct.call(this, ...arg, oldFunct.bind(this))
     }
+    fn.components = (oldFunct.components || [oldFunct]).concat((oldFunct.newFunct || [newFunct]))
+    fn.nbParams = newFunct.nbParams || newFunct.length
+    return fn
   }
 
   initProperties () {

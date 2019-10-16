@@ -57,7 +57,7 @@ class Property {
     } else if (this.options.composed != null && this.options.composed !== false) {
       this.getter = new CompositeGetter(this)
     } else if (typeof this.options.calcul === 'function') {
-      if (this.options.calcul.length === 0) {
+      if ((this.options.calcul.nbParams || this.options.calcul.length) === 0) {
         this.getter = new CalculatedGetter(this)
       } else {
         this.getter = new InvalidatedGetter(this)
