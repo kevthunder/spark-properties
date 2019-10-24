@@ -232,7 +232,8 @@ describe('Invalidator', function () {
       })
     }
     invalidedCalls = 0
-    invalidator = new Invalidator(function () {
+    invalidator = new Invalidator(function (context) {
+      assert.equal(context.origin, obj.testProperty)
       return invalidedCalls++
     }, obj)
     assert.equal(invalidator.invalidationEvents.length, 0)
@@ -372,7 +373,8 @@ describe('Invalidator', function () {
     })
     unknownCalls = 0
     invalidated = {
-      unknown: function () {
+      unknown: function (context) {
+        assert.equal(context.origin, prop)
         unknownCalls += 1
       }
     }

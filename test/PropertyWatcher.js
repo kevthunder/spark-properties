@@ -26,6 +26,25 @@ describe('PropertyWatcher', function () {
     prop.set(11)
     assert.equal(call, 2)
   })
+  it('dont trigger recalcul for an invalidation with preventImmediate', function () {
+    var call = 0
+    const prop = new Property({
+      calcul: function () {
+        call++
+        return 7
+      }
+    })
+    const watcher = new PropertyWatcher({
+      property: prop,
+      callback: function (val, old) {}
+    })
+    watcher.bind()
+    assert.equal(call, 1)
+    prop.invalidate()
+    assert.equal(call, 2)
+    prop.invalidate({ preventImmediate: true })
+    assert.equal(call, 2)
+  })
   it('dont trigger watcher once unbind is called', function () {
     var call = 0
     const prop = new Property({

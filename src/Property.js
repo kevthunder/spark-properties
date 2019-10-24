@@ -94,13 +94,13 @@ class Property {
     return this.getter.get()
   }
 
-  invalidate () {
-    this.getter.invalidate()
+  invalidate (context) {
+    this.getter.invalidate(context)
     return this
   }
 
-  unknown () {
-    this.getter.unknown()
+  unknown (context) {
+    this.getter.unknown(context)
     return this
   }
 

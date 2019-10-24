@@ -18,11 +18,15 @@ class PropertyWatcher extends Binder {
   constructor (options) {
     super()
     this.options = options
-    this.invalidateCallback = () => {
-      return this.invalidate()
+    this.invalidateCallback = (context) => {
+      if (this.validContext(context)) {
+        this.invalidate()
+      }
     }
-    this.updateCallback = (old) => {
-      return this.update(old)
+    this.updateCallback = (old, context) => {
+      if (this.validContext(context)) {
+        this.update(old)
+      }
     }
     if (this.options != null) {
       this.loadOptions(this.options)
@@ -94,6 +98,10 @@ class PropertyWatcher extends Binder {
       watcher.event === this.event &&
       watcher.getProperty() === this.getProperty() &&
       Reference.compareVal(watcher.callback, this.callback)
+  }
+
+  validContext (context) {
+    return context == null || !context.preventImmediate
   }
 
   invalidate () {

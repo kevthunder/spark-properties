@@ -27,21 +27,25 @@ class Invalidator extends Binder {
       this.invalidate()
     }
     this.invalidateCallback.owner = this
+    this.changedCallback = (old, context) => {
+      this.invalidate(context)
+    }
+    this.changedCallback.owner = this
   }
 
-  invalidate () {
+  invalidate (context) {
     var functName
     this.invalid = true
     if (typeof this.invalidated === 'function') {
-      this.invalidated()
+      this.invalidated(context)
     } else if (typeof this.callback === 'function') {
-      this.callback()
+      this.callback(context)
     } else if ((this.invalidated != null) && typeof this.invalidated.invalidate === 'function') {
-      this.invalidated.invalidate()
+      this.invalidated.invalidate(context)
     } else if (typeof this.invalidated === 'string') {
       functName = 'invalidate' + this.invalidated.charAt(0).toUpperCase() + this.invalidated.slice(1)
       if (typeof this.scope[functName] === 'function') {
-        this.scope[functName]()
+        this.scope[functName](context)
       } else {
         this.scope[this.invalidated] = null
       }
@@ -49,11 +53,11 @@ class Invalidator extends Binder {
     return this
   }
 
-  unknown () {
+  unknown (context) {
     if (this.invalidated != null && typeof this.invalidated.unknown === 'function') {
-      return this.invalidated.unknown()
+      return this.invalidated.unknown(context)
     } else {
-      return this.invalidate()
+      return this.invalidate(context)
     }
   }
 
@@ -76,20 +80,20 @@ class Invalidator extends Binder {
 
   getUnknownCallback (prop) {
     var callback
-    callback = () => {
+    callback = (context) => {
       return this.addUnknown(function () {
         return prop.get()
-      }, prop)
+      }, prop, context)
     }
     callback.prop = prop
     return callback
   }
 
-  addUnknown (fn, prop) {
+  addUnknown (fn, prop, context) {
     if (!this.findUnknown(prop)) {
       fn.prop = prop
       this.unknowns.push(fn)
-      return this.unknown()
+      return this.unknown(context)
     }
   }
 
@@ -120,7 +124,8 @@ class Invalidator extends Binder {
   prop (prop) {
     if (prop != null) {
       this.addEventBind('invalidated', prop.events, this.getUnknownCallback(prop))
-      return this.value(prop.get(), 'updated', prop.events)
+      this.addEventBind('updated', prop.events, this.changedCallback)
+      return prop.get()
     }
   }
 

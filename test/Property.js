@@ -61,6 +61,22 @@ describe('Property', function () {
       prop.set(4)
       return assert.equal(call, 3)
     })
+
+    it('should emit event when it is invalidated', function () {
+      var call = 0
+      const prop = new Property({
+        default: 1
+      })
+      prop.events.on('invalidated', function (context) {
+        assert.equal(context.origin, prop)
+        return call++
+      })
+      prop.get()
+      assert.equal(call, 0)
+      prop.invalidate()
+      assert.equal(call, 1)
+    })
+
     it('allow access to old and new value in change function', function () {
       var call = 0
       const prop = new Property({

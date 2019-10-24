@@ -53,8 +53,9 @@ class BaseSetter {
   }
 
   changed (old) {
-    this.prop.events.emit('updated', old)
-    this.prop.events.emit('changed', old)
+    const context = { origin: this.prop }
+    this.prop.events.emit('updated', old, context)
+    this.prop.events.emit('changed', old, context)
     return this
   }
 

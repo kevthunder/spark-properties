@@ -27,23 +27,24 @@ class BaseGetter {
     return this
   }
 
-  unknown () {
+  unknown (context) {
     if (this.calculated) {
-      this.invalidateNotice()
+      this.invalidateNotice(context)
     }
     return this
   }
 
-  invalidate () {
+  invalidate (context) {
     if (this.calculated) {
       this.calculated = false
-      this.invalidateNotice()
+      this.invalidateNotice(context)
     }
     return this
   }
 
-  invalidateNotice () {
-    this.prop.events.emit('invalidated')
+  invalidateNotice (context) {
+    context = context || { origin: this.prop }
+    this.prop.events.emit('invalidated', context)
   }
 
   /**
