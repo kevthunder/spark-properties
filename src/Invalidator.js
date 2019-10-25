@@ -86,12 +86,14 @@ class Invalidator extends Binder {
       }, prop, context)
     }
     callback.prop = prop
+    callback.owner = this
     return callback
   }
 
   addUnknown (fn, prop, context) {
     if (!this.findUnknown(prop)) {
       fn.prop = prop
+      fn.owner = this
       this.unknowns.push(fn)
       return this.unknown(context)
     }

@@ -7,6 +7,45 @@ const PropertyWatcher = require('../src/watchers/PropertyWatcher')
 const Collection = require('spark-collection')
 
 describe('Property', function () {
+  describe('utilities', function () {
+    it("can return it's fully qualified name", function () {
+      const scope = new function Test () {}()
+      const prop = new Property({
+        default: 3,
+        name: 'test',
+        scope: scope
+      })
+      assert.equal(prop.getQualifiedName(), 'Test.test')
+    })
+    it("can return it's fully qualified name - without scope", function () {
+      const prop = new Property({
+        default: 3,
+        name: 'test'
+      })
+      assert.equal(prop.getQualifiedName(), 'test')
+    })
+    it("can return it's fully qualified name - without name", function () {
+      const prop = new Property({
+        default: 3
+      })
+      assert.isUndefined(prop.getQualifiedName())
+    })
+    it("can return it's string value", function () {
+      const scope = new function Test () {}()
+      const prop = new Property({
+        default: 3,
+        name: 'test',
+        scope: scope
+      })
+      assert.equal(prop.toString(), '[Property Test.test]')
+    })
+    it("can return it's string value - without Qualified Name", function () {
+      const prop = new Property({
+        default: 3
+      })
+      assert.equal(prop.toString(), '[Property]')
+    })
+  })
   describe('with ManualGetter', function () {
     it('can invalidate a property that has a get function', function () {
       const prop = new Property({

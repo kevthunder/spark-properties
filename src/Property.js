@@ -47,6 +47,30 @@ class Property {
     }
   }
 
+  /**
+   * @returns {string}
+   */
+  getQualifiedName () {
+    if (this.options.name) {
+      let name = this.options.name
+      if (this.options.scope && this.options.scope.constructor) {
+        name = this.options.scope.constructor.name + '.' + name
+      }
+      return name
+    }
+  }
+
+  /**
+   * @returns {string}
+   */
+  toString () {
+    const name = this.getQualifiedName()
+    if (name) {
+      return `[Property ${name}]`
+    }
+    return '[Property]'
+  }
+
   initWatchers () {
     this.setter.loadInternalWatcher()
   }
