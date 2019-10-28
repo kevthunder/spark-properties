@@ -17,19 +17,20 @@ class BaseSetter {
   loadInternalWatcher () {
     const changeOpt = this.prop.options.change
     if (typeof changeOpt === 'function') {
-      return new PropertyWatcher({
+      this.watcher = new PropertyWatcher({
         property: this.prop,
         callback: changeOpt,
         scope: this.prop.options.scope,
         autoBind: true
       })
     } else if (changeOpt != null && typeof changeOpt.copyWith === 'function') {
-      return changeOpt.copyWith({
+      this.watcher = changeOpt.copyWith({
         property: this.prop,
         scope: this.prop.options.scope,
         autoBind: true
       })
     }
+    return this.watcher
   }
 
   set (val) {

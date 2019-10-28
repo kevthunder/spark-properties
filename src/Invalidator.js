@@ -172,12 +172,11 @@ class Invalidator extends Binder {
   }
 
   validateUnknowns () {
-    var unknowns
-    unknowns = this.unknowns
-    this.unknowns = []
-    return unknowns.forEach(function (unknown) {
-      return unknown()
+    this.unknowns.slice().forEach(function (unknown) {
+      unknown()
     })
+    this.unknowns = []
+    return this
   }
 
   isEmpty () {
