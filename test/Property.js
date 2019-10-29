@@ -505,6 +505,45 @@ describe('Property', function () {
       prop.destroy()
       assert.equal(emitter.listenerCount('test'), 0)
     })
+    it('can handle constantly changing calculated value', function () {
+      let changing = 0
+      let invalidated = 0
+      const changingProp = new Property({
+        calcul: function () {
+          changing++
+          return changing
+        }
+      })
+      const middleProp = new Property({
+        calcul: function (invalidator) {
+          return invalidator.prop(changingProp)
+        }
+      })
+      const invalidatedProp = new Property({
+        calcul: function (invalidator) {
+          return invalidator.prop(middleProp)
+        }
+      })
+      invalidatedProp.events.on('invalidated', function () {
+        invalidated++
+      })
+      assert.equal(invalidated, 0)
+      changingProp.invalidate()
+      assert.equal(invalidated, 0)
+      assert.equal(invalidatedProp.get(), changing)
+      assert.equal(invalidated, 0)
+      changingProp.invalidate()
+      assert.equal(invalidated, 1)
+      assert.equal(invalidatedProp.getter.invalidator.unknowns.length, 1)
+      changingProp.invalidate()
+      assert.equal(invalidated, 1)
+      assert.equal(invalidatedProp.get(), changing)
+      assert.equal(invalidated, 1)
+      assert.equal(invalidatedProp.getter.invalidator.unknowns.length, 0)
+      changingProp.invalidate()
+      assert.equal(invalidated, 2)
+      assert.equal(invalidatedProp.getter.invalidator.unknowns.length, 1)
+    })
   })
   describe('with CompositeGetter', function () {
     it('should return collection when collection config is on', function () {

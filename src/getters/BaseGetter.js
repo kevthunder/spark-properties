@@ -7,6 +7,7 @@ class BaseGetter {
   init () {
     this.calculated = false
     this.initiated = false
+    this.invalidated = false
   }
 
   get () {
@@ -24,19 +25,22 @@ class BaseGetter {
   revalidated () {
     this.calculated = true
     this.initiated = true
+    this.invalidated = false
     return this
   }
 
   unknown (context) {
-    if (this.calculated) {
+    if (!this.invalidated) {
+      this.invalidated = true
       this.invalidateNotice(context)
     }
     return this
   }
 
   invalidate (context) {
-    if (this.calculated) {
-      this.calculated = false
+    this.calculated = false
+    if (!this.invalidated) {
+      this.invalidated = true
       this.invalidateNotice(context)
     }
     return this

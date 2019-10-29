@@ -28,12 +28,9 @@ class InvalidatedGetter extends CalculatedGetter {
   }
 
   invalidate (context) {
-    if (this.calculated) {
-      this.calculated = false
-      this.invalidateNotice(context)
-      if (!this.calculated && this.invalidator != null) {
-        this.invalidator.unbind()
-      }
+    super.invalidate(context)
+    if (!this.calculated && this.invalidator != null) {
+      this.invalidator.unbind()
     }
     return this
   }

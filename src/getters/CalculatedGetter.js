@@ -13,6 +13,7 @@ class CalculatedGetter extends BaseGetter {
         this.prop.setter.changed(old)
       }
     }
+    this.invalidated = false
     return this.output()
   }
 
