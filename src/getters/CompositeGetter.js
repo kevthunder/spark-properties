@@ -22,17 +22,22 @@ class CompositeGetter extends InvalidatedGetter {
       return this.invalidate()
     }
     this.prop.members = this.members
+    this.join = this.guessJoinFunction()
+  }
 
+  guessJoinFunction () {
     if (typeof this.prop.options.composed === 'function') {
-      this.join = this.prop.options.composed
+      return this.prop.options.composed
     } else if (typeof this.prop.options.composed === 'string' && CompositeGetter.joinFunctions[this.prop.options.composed] != null) {
-      this.join = CompositeGetter.joinFunctions[this.prop.options.composed]
+      return CompositeGetter.joinFunctions[this.prop.options.composed]
+    } else if (this.prop.options.collection != null && this.prop.options.collection !== false) {
+      return CompositeGetter.joinFunctions.concat
     } else if (this.prop.options.default === false) {
-      this.join = CompositeGetter.joinFunctions.or
+      return CompositeGetter.joinFunctions.or
     } else if (this.prop.options.default === true) {
-      this.join = CompositeGetter.joinFunctions.and
+      return CompositeGetter.joinFunctions.and
     } else {
-      this.join = CompositeGetter.joinFunctions.last
+      return CompositeGetter.joinFunctions.last
     }
   }
 
@@ -89,6 +94,15 @@ CompositeGetter.joinFunctions = {
   },
   sum: function (a, b) {
     return a + b
+  },
+  concat: function (a, b) {
+    if (a.concat == null) {
+      a = [a]
+    }
+    if (b.concat == null) {
+      b = [b]
+    }
+    return a.concat(b)
   }
 }
 
