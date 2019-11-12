@@ -21,7 +21,7 @@
   "dependencies": {
     "events": "^3.0.0",
     "spark-binding": "0.1.0",
-    "spark-collection": "0.0.2"
+    "spark-collection": "0.1.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",

@@ -83,10 +83,16 @@ class PropertiesManager {
     return this
   }
 
+  /**
+   * @template T
+   * @param {string} name
+   * @param {Object} options
+   * @returns {Property<T>}
+   */
   addProperty (name, options) {
     const prop = new Property(Object.assign({ name: name }, this.globalOptions, options))
     this.properties.push(prop)
-    return this
+    return prop
   }
 
   addProperties (options) {

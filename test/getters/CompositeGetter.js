@@ -3,6 +3,7 @@ const assert = require('chai').assert
 const Property = require('../../src/Property')
 const Invalidator = require('../../src/Invalidator')
 const Collection = require('spark-collection')
+const CompositeGetter = require('../../src/getters/CompositeGetter')
 
 module.exports = function () {
   it('should return collection when collection config is on', function () {
@@ -407,5 +408,28 @@ module.exports = function () {
     assert.deepEqual(scope.testMembers.toArray(), [1, 2, 3])
     scope.testMembers.add(4)
     assert.equal(scope.test, 10)
+  })
+  describe('joinFunctions', function () {
+    it('can concat 2 raw value', function () {
+      assert.deepEqual(CompositeGetter.joinFunctions.concat(1, 2), [1, 2])
+    })
+    it('can concat 2 array', function () {
+      assert.deepEqual(CompositeGetter.joinFunctions.concat([1, 2], [3, 4]), [1, 2, 3, 4])
+    })
+    it('can concat 2 array-transformable object', function () {
+      class ArrayTransformable {
+        constructor (arr) {
+          this.arr = arr
+        }
+
+        toArray () {
+          return this.arr
+        }
+      }
+      assert.deepEqual(CompositeGetter.joinFunctions.concat(
+        new ArrayTransformable([1, 2]),
+        new ArrayTransformable([3, 4])
+      ), [1, 2, 3, 4])
+    })
   })
 }

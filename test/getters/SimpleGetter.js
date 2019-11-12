@@ -3,6 +3,16 @@ const Property = require('../../src/Property')
 const PropertyWatcher = require('../../src/watchers/PropertyWatcher')
 
 module.exports = function () {
+  it('can format the output', function () {
+    const prop = new Property({
+      default: 2,
+      output: function (val) {
+        return val + '$'
+      }
+    })
+    return assert.equal(prop.get(), '2$')
+  })
+
   it('should flag as manual setted properties', function () {
     const prop = new Property()
     prop.set(2)
