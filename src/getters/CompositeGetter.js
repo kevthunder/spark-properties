@@ -96,17 +96,25 @@ CompositeGetter.joinFunctions = {
     return a + b
   },
   concat: function (a, b) {
-    if (a.toArray != null) {
-      a = a.toArray()
+    if (a == null) {
+      a = []
+    } else {
+      if (a.toArray != null) {
+        a = a.toArray()
+      }
+      if (a.concat == null) {
+        a = [a]
+      }
     }
-    if (a.concat == null) {
-      a = [a]
-    }
-    if (b.toArray != null) {
-      b = b.toArray()
-    }
-    if (b.concat == null) {
-      b = [b]
+    if (b == null) {
+      b = []
+    } else {
+      if (b.toArray != null) {
+        b = b.toArray()
+      }
+      if (b.concat == null) {
+        b = [b]
+      }
     }
     return a.concat(b)
   }

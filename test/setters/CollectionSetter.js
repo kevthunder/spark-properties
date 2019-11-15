@@ -279,20 +279,25 @@ module.exports = function () {
   it('can be composed of another collection property', function () {
     const all = new Property({
       collection: true,
-      composed: true,
-      default: [1, 2, 3]
+      composed: true
     })
     const some = new Property({
       collection: true,
+      default: [1, 2, 3]
+    })
+    const someMore = new Property({
+      collection: true,
       default: [4, 5, 6]
     })
-    assert.deepEqual(all.get().toArray(), [1, 2, 3])
+    assert.deepEqual(all.get().toArray(), [])
     all.members.addProperty(some)
+    assert.deepEqual(all.get().toArray(), [1, 2, 3])
+    all.members.addProperty(someMore)
     assert.deepEqual(all.get().toArray(), [1, 2, 3, 4, 5, 6])
-    some.get().add(7)
-    assert.deepEqual(some.get().toArray(), [4, 5, 6, 7])
+    someMore.get().add(7)
+    assert.deepEqual(someMore.get().toArray(), [4, 5, 6, 7])
     assert.deepEqual(all.get().toArray(), [1, 2, 3, 4, 5, 6, 7])
-    const somePair = some.get().filter(i => i % 2 === 0)
+    const somePair = someMore.get().filter(i => i % 2 === 0)
     somePair.add(8)
     assert.deepEqual(all.get().toArray(), [1, 2, 3, 4, 5, 6, 7])
   })
