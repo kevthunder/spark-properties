@@ -83,13 +83,13 @@ class PropertyWatcher extends Binder {
 
   doBind () {
     this.update()
-    this.getProperty().events.on('invalidated', this.invalidateCallback)
-    return this.getProperty().events.on('updated', this.updateCallback)
+    this.getProperty().events.addListener('invalidated', this.invalidateCallback)
+    return this.getProperty().events.addListener('updated', this.updateCallback)
   }
 
   doUnbind () {
-    this.getProperty().events.off('invalidated', this.invalidateCallback)
-    return this.getProperty().events.off('updated', this.updateCallback)
+    this.getProperty().events.removeListener('invalidated', this.invalidateCallback)
+    return this.getProperty().events.removeListener('updated', this.updateCallback)
   }
 
   equals (watcher) {

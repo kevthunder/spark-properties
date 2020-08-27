@@ -24,7 +24,7 @@ module.exports = function () {
     const prop = new Property({
       default: 1
     })
-    prop.events.on('updated', function () {
+    prop.events.addListener('updated', function () {
       return call++
     })
     assert.equal(call, 0)
@@ -43,7 +43,7 @@ module.exports = function () {
     const prop = new Property({
       default: 1
     })
-    prop.events.on('invalidated', function (context) {
+    prop.events.addListener('invalidated', function (context) {
       assert.equal(context.origin, prop)
       return call++
     })
